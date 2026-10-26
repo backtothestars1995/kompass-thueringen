@@ -1,0 +1,163 @@
+---
+import Logo from './Logo.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  /** Ausführlicher Footer (Startseite) oder schmale Fußzeile (Unterseiten) */
+  variant?: 'full' | 'compact';
+}
+const { variant = 'compact' } = Astro.props;
+
+const legalLinks = [
+  { label: 'Impressum', href: url('impressum/') },
+  { label: 'Datenschutzerklärung', short: 'Datenschutz', href: url('datenschutz/') },
+  { label: 'Barrierefreiheitserklärung', short: 'Barrierefreiheit', href: url('barrierefreiheit/') },
+];
+
+const siteLinks = [
+  { label: 'Entdecken', href: url('entdecken/') },
+  { label: 'Wissen', href: url('wissen/') },
+  { label: 'Über KOMPASS', href: url('ueber/') },
+  { label: 'Projekt einreichen', href: url('einreichen/') },
+];
+---
+
+<footer class:list={['site-footer', `site-footer--${variant}`]}>
+  <div class="container">
+    {
+      variant === 'full' && (
+        <div class="site-footer__grid">
+          <div class="site-footer__brand">
+            <Logo tone="dark" />
+            <p>Projektpool für Thüringer Innenstädte.</p>
+          </div>
+          <div>
+            <h2 class="site-footer__heading">Kontakt</h2>
+            <p>
+              <span class="site-footer__placeholder">[Institution, Adresse]</span>
+              <br />
+              <span class="site-footer__placeholder">[E-Mail-Adresse]</span>
+            </p>
+          </div>
+          <nav aria-label="KOMPASS">
+            <h2 class="site-footer__heading">KOMPASS</h2>
+            <ul>
+              {siteLinks.map((l) => (
+                <li>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <nav aria-label="Rechtliches">
+            <h2 class="site-footer__heading">Rechtliches</h2>
+            <ul>
+              {legalLinks.map((l) => (
+                <li>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )
+    }
+
+    <div class="site-footer__bottom">
+      <p>© KOMPASS Thüringen — ein Projekt des Aktionsbündnisses „Innenstädte mit Zukunft“</p>
+      {
+        variant === 'compact' && (
+          <nav aria-label="Rechtliches">
+            <ul class="site-footer__inline">
+              {legalLinks.map((l) => (
+                <li>
+                  <a href={l.href}>{l.short ?? l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink);
+    color: var(--on-ink);
+    font-size: var(--text-sm);
+  }
+  .site-footer a {
+    color: var(--on-ink-muted);
+    text-decoration: none;
+  }
+  .site-footer a:hover {
+    color: var(--on-ink);
+    text-decoration: underline;
+  }
+  .site-footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-footer p {
+    color: var(--on-ink-muted);
+    margin: 0;
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--space-6);
+    padding-block: var(--space-8) var(--space-7);
+  }
+  .site-footer__brand p {
+    margin-top: var(--space-3);
+  }
+  .site-footer__heading {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0;
+    margin: 0 0 var(--space-3);
+    color: var(--on-ink);
+  }
+  .site-footer__grid li + li {
+    margin-top: var(--space-2);
+  }
+  .site-footer__placeholder {
+    font-style: italic;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-6);
+  }
+  .site-footer--full .site-footer__bottom {
+    border-top: 1px solid var(--ink-soft);
+  }
+  .site-footer__inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  @media (max-width: 860px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 480px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

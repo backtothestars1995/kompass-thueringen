@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
+---
+
+<BaseLayout
+  title="Startseite"
+  description="Der KOMPASS zeigt, wie Thüringer Kommunen leerstehende Gewerbeflächen wieder mit Leben füllen – mit Beispielen, Kennzahlen und Erfahrungen aus der Praxis."
+  headerTone="dark"
+  footer="full"
+>
+  <section class="hero">
+    <div class="container hero__inner">
+      <span class="eyebrow hero__eyebrow">Projektpool für Thüringer Innenstädte</span>
+      <h1>Leerstand ist Möglichkeits&shy;raum.</h1>
+      <p class="hero__lead">
+        Entdecken Sie, wie Thüringer Kommunen leerstehende Gewerbeflächen wieder mit Leben füllen – mit Beispielen,
+        Kennzahlen und Erfahrungen aus der Praxis.
+      </p>
+      <p><a class="btn btn--primary" href={url('entdecken/')}>Projektpool entdecken</a></p>
+    </div>
+  </section>
+  <section class="container section">
+    <p class="placeholder">[Weitere Bereiche der Startseite folgen in Bauschritt 5]</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: var(--ink);
+    color: var(--on-ink);
+    padding-block: var(--space-8) var(--space-9);
+  }
+  .hero__eyebrow {
+    color: var(--accent-light);
+  }
+  .hero h1 {
+    max-width: 12ch;
+  }
+  .hero__lead {
+    color: var(--on-ink-muted);
+    font-size: var(--text-lg);
+    max-width: 52ch;
+  }
+</style>

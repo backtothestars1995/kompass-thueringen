@@ -1,0 +1,86 @@
+/*
+ * Design-Tokens KOMPASS Thüringen (vorläufig bis zur Festlegung der CI).
+ * Alle Farben, Schriften, Abstände und Radien nur über diese Variablen verwenden.
+ */
+:root {
+  /* Grundfarben */
+  --ink: #16181d;
+  --paper: #f6f4ef;
+  --surface: #ffffff;
+  --sand: #e7e1d4;
+  --line: #e3dfd6;
+  --muted: #5e6068;
+  --accent: #c4421c;
+  --accent-light: #f08a64;
+  --note: #fff4c2; /* nur Wireframe-Hinweise, nicht live verwenden */
+
+  /* abgeleitete Farben */
+  --ink-soft: #2a2d35; /* Flächen auf dunklem Grund */
+  --on-ink: #f6f4ef; /* Text auf dunklem Grund */
+  --on-ink-muted: #b4b6bd; /* Sekundärtext auf dunklem Grund */
+  --accent-hover: #a83816;
+
+  /* Nutzungsarten – Marker, Badges, Legende */
+  --use-gewerbe: #2f5bea;
+  --use-wohnen: #16855a;
+  --use-mischnutzung: #e0a100;
+  --use-sondernutzung: #7c4ddb;
+
+  /* Ampel „Personeller Aufwand“ – immer mit Textlabel */
+  --effort-hoch: #e03e3e;
+  --effort-mittel: #e8b400;
+  --effort-gering: #1fa35b;
+
+  /* Schriften */
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --tracking-heading: -0.02em;
+  --tracking-eyebrow: 0.14em;
+
+  /* Schriftgrößen (fluid zwischen 390 px und 1280 px) */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --text-3xl: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --text-4xl: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+
+  /* Abstände */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --section-gap: clamp(3rem, 2rem + 4vw, 6rem);
+
+  /* Layout */
+  --container: 1280px;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 4rem);
+  --header-height: 4.5rem;
+
+  /* Radien */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 999px;
+
+  /* Schatten & Fokus */
+  --shadow-card: 0 1px 2px rgb(22 24 29 / 0.06), 0 8px 24px rgb(22 24 29 / 0.06);
+  --shadow-pop: 0 12px 40px rgb(22 24 29 / 0.18);
+  --focus-ring: 0 0 0 3px var(--paper), 0 0 0 5px var(--accent);
+
+  --transition: 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0ms;
+  }
+}

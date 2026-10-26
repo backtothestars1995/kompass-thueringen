@@ -1,0 +1,17 @@
+---
+// Vorläufige Seite, bis der jeweilige Bauschritt umgesetzt ist
+interface Props {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+}
+const { eyebrow, title, intro } = Astro.props;
+---
+
+<section class="container page-header">
+  {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+  <h1>{title}</h1>
+  {intro && <p class="lead">{intro}</p>}
+  <p class="placeholder">[Seite im Aufbau]</p>
+  <slot />
+</section>
