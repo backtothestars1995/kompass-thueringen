@@ -4,6 +4,10 @@
  */
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+
+// Plugins wie leaflet.markercluster erwarten Leaflet als globale Variable
+(window as unknown as { L: typeof L }).L = L;
 
 export const THUERINGEN_BOUNDS = L.latLngBounds([50.2, 9.87], [51.65, 12.65]);
 

@@ -1,8 +1,746 @@
 ---
+import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageStub from '../../components/PageStub.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import FacetFieldset from '../../components/FacetFieldset.astro';
+import KostenFilter from '../../components/KostenFilter.astro';
+import { getProjekte } from '../../lib/projekte';
+import { FACETTEN, SORTIERUNGEN, type FilterProjekt } from '../../lib/filter';
+import { GESAMTKOSTEN, NUTZUNGSART, NUTZUNGSART_FARBE } from '../../lib/taxonomie';
+import '../../styles/karte.css';
+
+const projekte = await getProjekte();
+
+// Schlanke Daten für Filter und Karte im Browser
+const daten: FilterProjekt[] = await Promise.all(
+  projekte.map(async (p) => ({
+    slug: p.id,
+    titel: p.data.titel,
+    stadt: p.data.stadt,
+    projekttraeger: p.data.projekttraeger,
+    kategorie: [...p.data.kategorie],
+    nutzungsart: [...p.data.nutzungsart],
+    projektzweck: [...p.data.projektzweck],
+    leerstandsdauer: [...p.data.leerstandsdauer],
+    kosten: p.data.gesamtkosten ? GESAMTKOSTEN.indexOf(p.data.gesamtkosten) : -1,
+    foerderung: p.data.foerderung === undefined ? null : p.data.foerderung ? 'ja' : 'nein',
+    koordinaten: p.data.koordinaten ?? null,
+    datum: p.data.veroeffentlicht_am?.getTime() ?? 0,
+    bild: p.data.bilder[0] ? (await getImage({ src: p.data.bilder[0].pfad, width: 480, format: 'webp' })).src : null,
+    einwohnerzahl: p.data.einwohnerzahl ?? null,
+  })),
+);
+
+const pills = [
+  ...FACETTEN.slice(0, 4).map((f) => ({ key: f.key as string, label: f.label, facette: f })),
+  { key: 'kosten', label: 'Kosten', facette: undefined },
+  { key: 'foerderung', label: 'Förderung', facette: FACETTEN[4] },
+];
 ---
 
-<BaseLayout title="Entdecken" description="Alle Projekte zur Nachnutzung von Leerstand in Thüringer Innenstädten – mit Filtern, Karte und Vergleich.">
-  <PageStub eyebrow="Projektpool" title="Entdecken" />
+<BaseLayout
+  title="Entdecken"
+  description="Alle Projekte zur Nachnutzung von Leerstand in Thüringer Innenstädten – filtern nach Leerstandstyp, Nutzungsart, Kosten und Förderung, in Liste und Karte."
+>
+  <div class="entdecken" data-entdecken>
+    <div class="container kopf">
+      <h1 class="kopf__titel">Entdecken</h1>
+      <form class="suche" role="search" data-suche>
+        <label for="suche" class="visually-hidden">Projekte durchsuchen (Stadt, Projekttitel, Projektträger)</label>
+        <svg class="suche__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+          <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+        <input type="search" id="suche" name="q" placeholder="Stadt, Projekttitel, Projektträger …" autocomplete="off" />
+      </form>
+      <div class="ansicht" role="group" aria-label="Ansicht">
+        <button type="button" class="ansicht__btn ansicht__btn--beides" data-ansicht="beides" aria-pressed="true">Liste + Karte</button>
+        <button type="button" class="ansicht__btn" data-ansicht="liste" aria-pressed="false">Liste</button>
+        <button type="button" class="ansicht__btn" data-ansicht="karte" aria-pressed="false">Karte</button>
+      </div>
+    </div>
+
+    <!-- Filterleiste -->
+    <div class="container filterleiste">
+      <ul class="pills" aria-label="Filter">
+        {
+          pills.map((pill) => (
+            <li class="pill" data-pill={pill.key}>
+              <button
+                type="button"
+                class="pill__btn"
+                aria-expanded="false"
+                aria-controls={`panel-${pill.key}`}
+                data-pill-btn={pill.key}
+              >
+                {pill.label}
+                <span class="pill__count" data-pill-count={pill.key} />
+                <svg class="pill__chevron" viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                </svg>
+              </button>
+              <div class="pill__panel" id={`panel-${pill.key}`} hidden data-panel={pill.key}>
+                {pill.facette ? <FacetFieldset facette={pill.facette} idPrefix="p" /> : <KostenFilter idPrefix="p" />}
+                <div class="pill__foot">
+                  <button type="button" class="pill__reset" data-reset={pill.key}>
+                    Zurücksetzen
+                  </button>
+                  <button type="button" class="btn btn--dark btn--small" data-panel-close>
+                    <span data-treffer>0</span>&nbsp;Projekte anzeigen
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+      <button type="button" class="btn btn--outline btn--small alle-filter-btn" data-alle-filter>
+        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M3 5h14M6 10h8M8.5 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="alle-filter-btn__label">Alle Filter</span>
+        <span class="pill__count" data-pill-count="alle" />
+      </button>
+    </div>
+
+    <div class="container aktivleiste">
+      <div class="aktiv" data-aktiv hidden>
+        <span class="aktiv__label">Aktiv:</span>
+        <ul class="aktiv__chips" data-chips></ul>
+        <button type="button" class="aktiv__reset" data-reset="alle">Alle zurücksetzen</button>
+      </div>
+      <div class="ergebnis">
+        <p class="ergebnis__zahl" role="status" aria-live="polite">
+          <strong><span data-treffer>0</span> Projekte</strong>
+        </p>
+        <label class="sortierung">
+          <span>Sortieren:</span>
+          <select data-sort>
+            {SORTIERUNGEN.map((s) => <option value={s.key}>{s.label}</option>)}
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="container ergebnisse" data-ergebnisse data-modus="beides">
+      <div class="ergebnisse__liste">
+        <h2 class="visually-hidden">Projektliste</h2>
+        <ul class="ergebnisse__grid" data-liste>
+          {
+            projekte.map((p, i) => (
+              <li data-item={p.id}>
+                <ProjectCard projekt={p} vergleichen loading={i < 4 ? 'eager' : 'lazy'} />
+              </li>
+            ))
+          }
+        </ul>
+        <div class="leer" data-leer hidden>
+          <p class="leer__titel">Keine Projekte gefunden.</p>
+          <p>Passen Sie die Filter an oder setzen Sie sie zurück.</p>
+          <button type="button" class="btn btn--dark btn--small" data-reset="alle">Alle Filter zurücksetzen</button>
+        </div>
+        <p class="mehr">
+          <button type="button" class="btn btn--outline" data-mehr hidden>Weitere Projekte anzeigen</button>
+        </p>
+      </div>
+
+      <div class="ergebnisse__karte">
+        <div class="karte" data-karte-wrap>
+          <h2 class="visually-hidden">Karte</h2>
+          <div class="karte__map" data-karte role="region" aria-label="Karte der Projekte"></div>
+          <label class="karte__bounds">
+            <input type="checkbox" data-bounds />
+            Beim Verschieben der Karte suchen
+          </label>
+          <div class="karte__legende">
+            <p class="karte__legende-titel">Nutzungsart</p>
+            <ul>
+              {
+                NUTZUNGSART.map((n) => (
+                  <li>
+                    <span class="karte__dot" style={`--dot: ${NUTZUNGSART_FARBE[n]}`} aria-hidden="true" />
+                    {n}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vergleichsleiste -->
+    <div class="vergleichsleiste" data-vergleichsleiste hidden>
+      <div class="vergleichsleiste__inner">
+        <ul class="vergleichsleiste__slots" data-vergleich-slots aria-hidden="true"></ul>
+        <p class="vergleichsleiste__text" role="status">
+          <strong data-vergleich-anzahl>0</strong> von 3 Projekten zum Vergleich gewählt
+        </p>
+        <a class="btn btn--primary" href="" data-vergleich-link>Vergleichen →</a>
+      </div>
+    </div>
+
+    <!-- Alle Filter (Desktop) bzw. Filter-Bottom-Sheet (Mobil) -->
+    <dialog class="sheet" data-sheet aria-labelledby="sheet-titel">
+      <div class="sheet__kopf">
+        <h2 id="sheet-titel" class="sheet__titel">Filter</h2>
+        <button type="button" class="sheet__close" data-sheet-close aria-label="Filter schließen">×</button>
+      </div>
+      <div class="sheet__inhalt">
+        {FACETTEN.slice(0, 4).map((f) => <FacetFieldset facette={f} idPrefix="s" />)}
+        <KostenFilter idPrefix="s" />
+        <FacetFieldset facette={FACETTEN[4]} idPrefix="s" />
+      </div>
+      <div class="sheet__fuss">
+        <button type="button" class="pill__reset" data-reset="alle">Alle zurücksetzen</button>
+        <button type="button" class="btn btn--dark" data-sheet-close>
+          <span data-treffer>0</span>&nbsp;Projekte anzeigen
+        </button>
+      </div>
+    </dialog>
+
+    <script type="application/json" data-projekte set:html={JSON.stringify(daten).replace(/</g, '\\u003c')} />
+  </div>
 </BaseLayout>
+
+<script>
+  import { initEntdecken } from '../../scripts/entdecken';
+  initEntdecken();
+</script>
+
+<style>
+  .entdecken {
+    padding-bottom: var(--space-8);
+  }
+
+  /* Kopfzeile */
+  .kopf {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--space-4);
+  }
+  .kopf__titel {
+    font-size: var(--text-3xl);
+    margin: 0;
+  }
+  .suche {
+    position: relative;
+    max-width: 36rem;
+  }
+  .suche__icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    width: 1.1rem;
+    height: 1.1rem;
+    transform: translateY(-50%);
+    color: var(--muted);
+  }
+  .suche input {
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-4) var(--space-2) 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+  }
+  .suche input::placeholder {
+    color: var(--muted);
+  }
+  .suche input:focus-visible {
+    border-color: var(--ink);
+  }
+  .ansicht {
+    display: inline-flex;
+    padding: 0.25rem;
+    border-radius: var(--radius-full);
+    background: var(--sand);
+  }
+  .ansicht__btn {
+    min-height: 2.5rem;
+    padding: 0 var(--space-4);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+  .ansicht__btn[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+
+  /* Filterleiste */
+  .filterleiste {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--space-3) 0 0;
+    border-right: 1px solid var(--line);
+  }
+  .pill {
+    position: relative;
+  }
+  .pill__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    font-weight: 500;
+  }
+  .pill__btn:hover {
+    border-color: var(--ink);
+  }
+  .pill.is-aktiv .pill__btn {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
+  }
+  .pill__chevron {
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: transform var(--transition);
+  }
+  .pill__btn[aria-expanded='true'] .pill__chevron {
+    transform: rotate(180deg);
+  }
+  .pill__count:empty {
+    display: none;
+  }
+  .pill__count::before {
+    content: '· ';
+  }
+  .pill__panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    z-index: 600;
+    width: max-content;
+    min-width: 20rem;
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: var(--space-5);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+  }
+  .pill__foot,
+  .sheet__fuss {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--line);
+  }
+  .pill__reset,
+  .aktiv__reset {
+    border: 0;
+    background: none;
+    padding: var(--space-2) 0;
+    color: var(--muted);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    white-space: nowrap;
+  }
+  .pill__reset:hover,
+  .aktiv__reset:hover {
+    color: var(--ink);
+  }
+  .alle-filter-btn {
+    background: var(--surface);
+    border-color: var(--line);
+    min-height: 2.75rem;
+  }
+  .alle-filter-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  /* Aktive Filter + Ergebniszahl */
+  .aktivleiste {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-5);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: var(--space-5);
+  }
+  .aktiv {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .aktiv[hidden] {
+    display: none;
+  }
+  .aktiv__label {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .aktiv__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .aktiv__chips :global(button) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.25rem;
+    padding: 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--sand);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .aktiv__chips :global(button:hover) {
+    background: var(--line);
+  }
+  .aktiv__chips :global(.chip__dot) {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--dot);
+  }
+  .ergebnis {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-left: auto;
+    font-size: var(--text-sm);
+  }
+  .ergebnis__zahl {
+    margin: 0;
+  }
+  .sortierung {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--muted);
+  }
+  .sortierung select {
+    min-height: 2.25rem;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  /* Liste + Karte */
+  .ergebnisse {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+  .ergebnisse__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ergebnisse__grid > [hidden] {
+    display: none;
+  }
+  .ergebnisse[data-modus='liste'] {
+    grid-template-columns: 1fr;
+  }
+  .ergebnisse[data-modus='liste'] .ergebnisse__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ergebnisse[data-modus='liste'] .ergebnisse__karte {
+    display: none;
+  }
+  .ergebnisse[data-modus='karte'] {
+    grid-template-columns: 1fr;
+  }
+  .ergebnisse[data-modus='karte'] .ergebnisse__liste {
+    display: none;
+  }
+  .ergebnisse__karte {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+  .karte {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--sand);
+  }
+  .karte__map {
+    height: calc(100vh - var(--header-height) - var(--space-7));
+    min-height: 26rem;
+  }
+  .ergebnisse[data-modus='karte'] .karte__map {
+    height: calc(100vh - var(--header-height) - 14rem);
+    min-height: 30rem;
+  }
+  .karte__bounds {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--surface);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-card);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .karte__bounds input {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: var(--accent);
+  }
+  .karte__legende {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-6);
+    z-index: 500;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    font-size: var(--text-sm);
+  }
+  .karte__legende-titel {
+    margin: 0 0 var(--space-1);
+    font-weight: 600;
+  }
+  .karte__legende ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .karte__legende li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .karte__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--dot);
+  }
+  .leer {
+    padding: var(--space-7);
+    text-align: center;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+  }
+  .leer[hidden] {
+    display: none;
+  }
+  .leer__titel {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  .mehr {
+    margin: var(--space-6) 0 0;
+    text-align: center;
+  }
+
+  /* Vergleichsleiste */
+  .vergleichsleiste {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--space-4);
+    z-index: 700;
+    padding-inline: var(--gutter);
+    pointer-events: none;
+  }
+  .vergleichsleiste[hidden] {
+    display: none;
+  }
+  .vergleichsleiste__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    max-width: 52rem;
+    margin-inline: auto;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+    background: var(--ink);
+    color: var(--on-ink);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-pop);
+    pointer-events: auto;
+  }
+  .vergleichsleiste__slots {
+    display: flex;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .vergleichsleiste__slots :global(li) {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-sm);
+    background: var(--ink-soft) center / cover no-repeat;
+    border: 1px dashed var(--on-ink-muted);
+  }
+  .vergleichsleiste__slots :global(li.is-filled) {
+    border: 0;
+  }
+  .vergleichsleiste__text {
+    margin: 0;
+    flex: 1;
+  }
+
+  /* Dialog „Alle Filter“ */
+  .sheet {
+    width: min(36rem, 100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .sheet[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .sheet::backdrop {
+    background: rgb(22 24 29 / 0.5);
+  }
+  .sheet__kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--line);
+  }
+  .sheet__titel {
+    font-size: var(--text-xl);
+    margin: 0;
+  }
+  .sheet__close {
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    font-size: 1.5rem;
+  }
+  .sheet__inhalt {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-5);
+    overflow-y: auto;
+  }
+  .sheet__fuss {
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+  }
+
+  /* Tablet */
+  @media (max-width: 1100px) {
+    .kopf {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .ansicht {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+    .ergebnisse__grid {
+      grid-template-columns: 1fr;
+    }
+    .ergebnisse[data-modus='liste'] .ergebnisse__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Mobil: Filter als Bottom-Sheet, Karte als Vollbild-Umschalter */
+  @media (max-width: 760px) {
+    .kopf {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+    .suche {
+      max-width: none;
+    }
+    .ansicht__btn--beides {
+      display: none;
+    }
+    .pills {
+      display: none;
+    }
+    .filterleiste {
+      justify-content: space-between;
+    }
+    .alle-filter-btn__label::after {
+      content: '';
+    }
+    .ergebnisse,
+    .ergebnisse[data-modus='beides'] {
+      grid-template-columns: 1fr;
+    }
+    .ergebnisse[data-modus='beides'] .ergebnisse__karte {
+      display: none;
+    }
+    .ergebnisse__grid,
+    .ergebnisse[data-modus='liste'] .ergebnisse__grid {
+      grid-template-columns: 1fr;
+    }
+    .ergebnisse[data-modus='karte'] .karte__map {
+      height: calc(100vh - var(--header-height) - 16rem);
+      min-height: 24rem;
+    }
+    .ergebnis {
+      margin-left: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .sheet {
+      width: 100vw;
+      max-width: 100vw;
+      max-height: 85vh;
+      margin: auto 0 0;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+    .vergleichsleiste {
+      bottom: var(--space-2);
+      padding-inline: var(--space-2);
+    }
+    .vergleichsleiste__slots {
+      display: none;
+    }
+    .vergleichsleiste__inner {
+      padding-left: var(--space-4);
+      font-size: var(--text-sm);
+    }
+  }
+</style>
