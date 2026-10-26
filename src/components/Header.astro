@@ -1,0 +1,287 @@
+---
+import Logo from './Logo.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  tone?: 'light' | 'dark';
+}
+const { tone = 'light' } = Astro.props;
+
+const navItems = [
+  { label: 'Entdecken', href: url('entdecken/') },
+  { label: 'Wissen', href: url('wissen/') },
+  { label: 'Über KOMPASS', href: url('ueber/') },
+  { label: 'Kontakt', href: url('kontakt/') },
+];
+
+const current = Astro.url.pathname;
+const isActive = (href: string) => current.startsWith(href);
+---
+
+<header class:list={['site-header', `site-header--${tone}`]} data-site-header>
+  <div class="container site-header__inner">
+    <Logo tone={tone} />
+
+    <nav class="site-nav" aria-label="Hauptnavigation" id="site-nav" data-site-nav>
+      <ul class="site-nav__list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="site-nav__link"
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a href={url('einreichen/')} class="btn btn--primary site-nav__cta-mobile">Projekt einreichen</a>
+    </nav>
+
+    <div class="site-header__actions">
+      <a href={url('entdecken/#suche')} class="icon-btn" aria-label="Projekte durchsuchen">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+          <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+      </a>
+      <a href={url('vergleich/')} class="icon-btn merkliste-btn" data-merkliste-link aria-label="Merkliste (0 Projekte)">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span class="merkliste-btn__count" data-merkliste-count hidden>0</span>
+      </a>
+      <a href={url('einreichen/')} class="btn btn--primary site-header__cta">Projekt einreichen</a>
+      <button
+        type="button"
+        class="icon-btn menu-btn"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-menu-toggle
+      >
+        <span class="visually-hidden" data-menu-label>Menü öffnen</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path class="menu-btn__open" d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          <path class="menu-btn__close" d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { getMerkliste, onMerklisteChange } from '../lib/merkliste';
+
+  // Zähler der Merkliste im Header
+  function renderCount(slugs: string[]) {
+    const n = slugs.length;
+    document.querySelectorAll<HTMLElement>('[data-merkliste-count]').forEach((el) => {
+      el.textContent = String(n);
+      el.hidden = n === 0;
+    });
+    document.querySelectorAll<HTMLElement>('[data-merkliste-link]').forEach((el) => {
+      el.setAttribute('aria-label', `Merkliste (${n} ${n === 1 ? 'Projekt' : 'Projekte'})`);
+    });
+  }
+  renderCount(getMerkliste());
+  onMerklisteChange(renderCount);
+
+  // Mobilmenü
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const label = document.querySelector<HTMLElement>('[data-menu-label]');
+  if (toggle && header && label) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      header.classList.toggle('is-open', open);
+      label.textContent = open ? 'Menü schließen' : 'Menü öffnen';
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.classList.contains('is-open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    --header-bg: var(--paper);
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .site-header--dark {
+    --header-bg: var(--ink);
+    border-bottom-color: var(--ink-soft);
+    color: var(--on-ink);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: var(--header-height);
+  }
+
+  .site-nav {
+    margin-inline: auto;
+  }
+  .site-nav__list {
+    display: flex;
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-nav__link {
+    display: inline-block;
+    padding-block: var(--space-2);
+    text-decoration: none;
+    font-weight: 500;
+    color: inherit;
+    border-bottom: 2px solid transparent;
+  }
+  .site-nav__link:hover {
+    border-bottom-color: var(--line);
+  }
+  .site-nav__link[aria-current='page'] {
+    font-weight: 600;
+    border-bottom-color: var(--accent);
+  }
+  .site-nav__cta-mobile {
+    display: none;
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .icon-btn {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0;
+  }
+  .site-header--dark .icon-btn {
+    background: var(--ink-soft);
+    border-color: var(--ink-soft);
+    color: var(--on-ink);
+  }
+  .icon-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .merkliste-btn__count {
+    position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding-inline: 0.3rem;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: var(--surface);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    text-align: center;
+  }
+  .merkliste-btn__count[hidden] {
+    display: none;
+  }
+
+  .menu-btn {
+    display: none;
+  }
+  .menu-btn__close {
+    display: none;
+  }
+
+  /* Mobil & Tablet */
+  @media (max-width: 960px) {
+    .site-header__inner {
+      gap: var(--space-3);
+    }
+    .site-header__actions {
+      margin-left: auto;
+    }
+    .site-header__cta {
+      display: none;
+    }
+    .menu-btn {
+      display: inline-grid;
+    }
+    .site-nav {
+      display: none;
+      position: absolute;
+      inset: 100% 0 auto 0;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--line);
+      box-shadow: var(--shadow-pop);
+      padding: var(--space-4) var(--gutter) var(--space-6);
+    }
+    .site-header.is-open .site-nav {
+      display: block;
+    }
+    .site-header.is-open .menu-btn__open {
+      display: none;
+    }
+    .site-header.is-open .menu-btn__close {
+      display: inline;
+    }
+    .site-nav__list {
+      flex-direction: column;
+      gap: 0;
+    }
+    .site-nav__link {
+      display: block;
+      padding-block: var(--space-3);
+      font-size: var(--text-lg);
+      border-bottom: 1px solid var(--line);
+    }
+    .site-header--dark .site-nav__link {
+      border-bottom-color: var(--ink-soft);
+    }
+    .site-nav__link[aria-current='page'] {
+      color: var(--accent);
+      border-bottom-color: var(--line);
+    }
+    .site-header--dark .site-nav__link[aria-current='page'] {
+      color: var(--accent-light);
+    }
+    .site-nav__cta-mobile {
+      display: inline-flex;
+      margin-top: var(--space-5);
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .site-header :global(.logo__region) {
+      display: none;
+    }
+  }
+</style>

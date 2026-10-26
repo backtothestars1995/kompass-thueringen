@@ -101,11 +101,11 @@ Feldnamen und Wertelisten sind fachlich abgestimmt; die Schreibweise in dieser T
 | `gesamtkosten` | Auswahl | weniger als 5.000 € · bis 10.000 € · bis 20.000 € · bis 50.000 € · bis 100.000 € · bis 250.000 € · bis 500.000 € · bis 1.000.000 € · mehr als 1.000.000 € |
 | `foerderung` | ja/nein | + `foerderprogramm` (Text, optional) |
 | `personeller_aufwand` | Auswahl | hoch · mittel · gering (Ampel; ersetzt frühere Stundenangaben) |
-| `projektziel` | Text | max. 250 Zeichen |
-| Markdown-Inhalt | Fließtext | Projektbeschreibung, max. 2.500 Zeichen |
+| `projektziel` | Text | ohne Längenbegrenzung |
+| Markdown-Inhalt | Fließtext | Projektbeschreibung, ohne Längenbegrenzung |
 | `projektfahrplan` | Liste | je Stufe ein Stichpunkt (wird als Zeitleiste gezeigt) |
 | `partnerschaften` | Liste | beteiligte Ämter/Partner |
-| `hindernisse` | Text, optional | max. 1.500 Zeichen |
+| `hindernisse` | Text, optional | ohne Längenbegrenzung |
 | `kontakte` | Liste | Name, Institution, E-Mail, Telefon (nur mit Einwilligung veröffentlichen) |
 | `bilder` | Liste | Pfad + Alternativtext (Pflicht) + Bildunterschrift; erstes Bild = Hauptbild |
 | `dokumente` | Liste, optional | PDF-Pfade |
@@ -115,11 +115,11 @@ Feldnamen und Wertelisten sind fachlich abgestimmt; die Schreibweise in dieser T
 | `im_fokus` | Boolean | „Projekt im Fokus“ auf der Startseite |
 | `veroeffentlicht_am` | Datum | Sortierung „Neueste“, Karussell |
 
-Längenbegrenzungen im Schema prüfen (Build bricht mit verständlicher Meldung ab).
+Es gibt keine Zeichenbegrenzungen für Textfelder (Entscheidung der Redaktion, Oktober 2026; die Vorgaben aus dem Leistungsverzeichnis entfallen). Ungültige Werte lassen den Build mit verständlicher Meldung abbrechen.
 
 ## Glossar (`src/content/glossar/*.md`)
 
-Felder: `begriff`, `kategorie` (Leerstandstyp · Nutzungsart · Projektzweck · Planung & Recht), Erläuterung als Markdown-Inhalt. Das Glossar ist die **einzige Textquelle** für alle ⓘ-Erläuterungen (Filter, Steckbrief, Formular, Vergleich). Fehlt eine Erläuterung, Platzhalter `[Erläuterung folgt]` anzeigen, nichts erfinden. Grundlage der Leerstandstypen ist das Dokument „Kategorisierung_Typen_Leerstand“ der Redaktion.
+Felder: `begriff`, `kategorie` (Leerstandstyp · Nutzungsart · Projektzweck · Planung & Recht · Projektdaten), Erläuterung als Markdown-Inhalt. Die Kategorie „Projektdaten“ enthält erklärungsbedürftige Feldbegriffe (z. B. Gesamtkosten des Projektes, Personeller Aufwand, Dauer des Leerstands vor Projektstart). Das Glossar ist die **einzige Textquelle** für alle ⓘ-Erläuterungen (Filter, Steckbrief, Formular, Vergleich). Das ⓘ steht neben jedem Begriff, der erläutert werden soll; die Erläuterung erscheint beim Überfahren mit der Maus (zusätzlich per Tastaturfokus und Antippen, Barrierefreiheit). Alle diese Begriffe stehen zusätzlich im Glossar. Fehlt eine Erläuterung, Platzhalter `[Erläuterung folgt]` anzeigen, nichts erfinden. Grundlage der Leerstandstypen ist das Dokument „Kategorisierung_Typen_Leerstand“ der Redaktion.
 
 ## Filter (Entdecken, Startseite, Projekt-Finder)
 
@@ -130,7 +130,9 @@ Projekt-Finder (3 Fragen in Alltagssprache) setzt intern dieselben Filter: Leers
 ## Bestehende Inhalte (Migration)
 
 Diese Projekte stehen aktuell auf kompass-thueringen.de und werden übernommen – Inhalte ausschließlich von der Live-Seite oder von der Redaktion, nicht ergänzen:
-Pößneck – Die Stadt als Projektentwickler · Gotha – Umbau eines Wohnblocks zur Jugendherberge · Jena – StadtLab Jena · Schmalkalden – Ratskeller Schmalkalden · Rudolstadt – RuAnSi · Treffurt – Schwebdaer Hof „Hotel 1601“ · Eisenach – „Goldschmiede Eisenach“ · Bad Salzungen – Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld · Arnstadt – Impulsräume Arnstadt
+Pößneck – Die Stadt als Projektentwickler · Gotha – Umbau eines Wohnblocks zur Jugendherberge · Jena – StadtLab Jena · Schmalkalden – Ratskeller Schmalkalden · Rudolstadt – RuAnSi · Treffurt – Schwebdaer Hof „Hotel 1601“ · Eisenach – „Goldschmiede Eisenach“ · Bad Salzungen – Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld · Arnstadt – Impulsräume Arnstadt · Weimar – Quartiersprojekt Alte Feuerwache · Stadt Amt Creuzburg – Umnutzung ehemaliges Schulgebäude zum Verwaltungssitz
+
+Stand der Übernahme (Oktober 2026): alle 11 Projekte inkl. Bilder übernommen. Kontakte vorerst nicht übernommen (Platzhalter). Koordinaten vorläufig = Stadtmittelpunkt.
 
 Leitfäden (3): Hemmnisse – Chancen und weitere Vorgehensweise bei der Mietförderung · Zwischenerwerb – Voraussetzungen und Bestandteile vom Erwerb bis zur Vermarktung · Zwischenerwerb – Handlungsempfehlung für Kauf, Sicherung, Nachnutzung und Sanierung
 

@@ -1,0 +1,169 @@
+---
+/**
+ * ⓘ-Erläuterung zu einem Fachbegriff. Text kommt ausschließlich aus dem Glossar.
+ * Erscheint bei Mausberührung, Tastaturfokus und Antippen; Escape schließt.
+ */
+import { getGlossarIndex, PLATZHALTER_ERLAEUTERUNG } from '../lib/glossar';
+
+interface Props {
+  begriff: string;
+  /** Optional: abweichende Beschriftung im Tooltip (Standard: Begriff) */
+  label?: string;
+  tone?: 'light' | 'dark';
+}
+const { begriff, label = begriff, tone = 'light' } = Astro.props;
+const index = await getGlossarIndex();
+const text = index.get(begriff)?.text ?? PLATZHALTER_ERLAEUTERUNG;
+const id = `tip-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<span class:list={['infotip', `infotip--${tone}`]} data-infotip>
+  <button type="button" class="infotip__btn" aria-describedby={id} aria-label={`Erläuterung: ${label}`}>
+    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+      <circle cx="10" cy="6.2" r="1.1" fill="currentColor"></circle>
+      <path d="M10 9v5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  <span class="infotip__bubble" role="tooltip" id={id}>
+    <strong>{label}:</strong>{' '}{text}
+  </span>
+</span>
+
+<script>
+  // Antippen (Touch) öffnet/schließt, Escape schließt, Klick daneben schließt.
+  // Außerdem wird die Sprechblase horizontal im sichtbaren Bereich gehalten.
+  function place(tip: HTMLElement) {
+    const bubble = tip.querySelector<HTMLElement>('.infotip__bubble');
+    if (!bubble) return;
+    bubble.style.setProperty('--shift', '0px');
+    const r = bubble.getBoundingClientRect();
+    const margin = 12;
+    let shift = 0;
+    if (r.right > window.innerWidth - margin) shift = window.innerWidth - margin - r.right;
+    if (r.left + shift < margin) shift = margin - r.left;
+    bubble.style.setProperty('--shift', `${shift}px`);
+  }
+
+  function closeAll(except?: Element) {
+    document.querySelectorAll('[data-infotip].is-open').forEach((t) => {
+      if (t !== except) t.classList.remove('is-open');
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest('.infotip__btn');
+    if (!btn) return closeAll();
+    const tip = btn.closest<HTMLElement>('[data-infotip]')!;
+    e.preventDefault();
+    closeAll(tip);
+    tip.classList.remove('is-dismissed');
+    tip.classList.toggle('is-open');
+    place(tip);
+  });
+
+  for (const type of ['mouseover', 'focusin'] as const) {
+    document.addEventListener(type, (e) => {
+      const tip = (e.target as Element).closest?.<HTMLElement>('[data-infotip]');
+      if (tip) place(tip);
+    });
+  }
+  document.addEventListener('mouseout', (e) => {
+    const tip = (e.target as Element).closest?.('[data-infotip]');
+    if (tip && !tip.contains(e.relatedTarget as Node)) tip.classList.remove('is-dismissed');
+  });
+  document.addEventListener('focusout', (e) => {
+    const tip = (e.target as Element).closest?.('[data-infotip]');
+    tip?.classList.remove('is-dismissed', 'is-open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('[data-infotip]').forEach((t) => {
+      if (t.matches(':hover, :focus-within, .is-open')) {
+        t.classList.remove('is-open');
+        t.classList.add('is-dismissed');
+      }
+    });
+  });
+</script>
+
+<style>
+  .infotip {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    margin-left: 0.2em;
+  }
+  .infotip__btn {
+    display: inline-grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: -0.375rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--muted);
+    cursor: help;
+  }
+  .infotip__btn svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .infotip__btn:hover {
+    color: var(--ink);
+  }
+  .infotip--dark .infotip__btn {
+    color: var(--on-ink-muted);
+  }
+  .infotip--dark .infotip__btn:hover {
+    color: var(--on-ink);
+  }
+
+  .infotip__bubble {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 0.5rem);
+    z-index: 50;
+    width: max-content;
+    max-width: min(20rem, calc(100vw - 2rem));
+    transform: translateX(calc(-50% + var(--shift, 0px)));
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    color: var(--on-ink);
+    box-shadow: var(--shadow-pop);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-align: left;
+    text-transform: none;
+    white-space: normal;
+    display: none;
+  }
+  .infotip--dark .infotip__bubble {
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .infotip__bubble strong {
+    font-weight: 600;
+  }
+
+  .infotip:hover .infotip__bubble,
+  .infotip:focus-within .infotip__bubble,
+  .infotip.is-open .infotip__bubble {
+    display: block;
+  }
+  .infotip.is-dismissed .infotip__bubble {
+    display: none;
+  }
+
+  @media print {
+    .infotip {
+      display: none;
+    }
+  }
+</style>

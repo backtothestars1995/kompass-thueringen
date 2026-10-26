@@ -1,0 +1,125 @@
+---
+/**
+ * Gesamtkosten als Bandbreiten-Regler (zwei Schieberegler über die Kostenklassen).
+ * Barrierefrei: echte <input type="range"> mit Beschriftung und Textwert.
+ */
+import InfoTip from './InfoTip.astro';
+import { GESAMTKOSTEN } from '../lib/taxonomie';
+
+interface Props {
+  idPrefix: string;
+}
+const { idPrefix } = Astro.props;
+const max = GESAMTKOSTEN.length - 1;
+---
+
+<fieldset class="kosten" data-kosten>
+  <legend class="kosten__legend">
+    Gesamtkosten des Projektes
+    <InfoTip begriff="Gesamtkosten des Projektes" />
+  </legend>
+  <p class="kosten__wert" aria-live="polite" data-kosten-text>Alle Kostenklassen</p>
+  <div class="kosten__slider">
+    <label class="visually-hidden" for={`${idPrefix}-kosten-von`}>Kosten von</label>
+    <input type="range" id={`${idPrefix}-kosten-von`} min="0" max={max} step="1" value="0" data-kosten-von />
+    <label class="visually-hidden" for={`${idPrefix}-kosten-bis`}>Kosten bis</label>
+    <input type="range" id={`${idPrefix}-kosten-bis`} min="0" max={max} step="1" value={max} data-kosten-bis />
+  </div>
+  <div class="kosten__skala" aria-hidden="true">
+    <span>{GESAMTKOSTEN[0]}</span>
+    <span>{GESAMTKOSTEN[max]}</span>
+  </div>
+  <p class="kosten__hinweis">Projekte ohne Kostenangabe werden bei gesetztem Kostenfilter ausgeblendet.</p>
+</fieldset>
+
+<style>
+  .kosten {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .kosten__legend {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+  }
+  .kosten__wert {
+    margin: 0 0 var(--space-3);
+    font-weight: 600;
+  }
+  .kosten__slider {
+    position: relative;
+    height: 1.75rem;
+  }
+  .kosten__slider input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    background: none;
+    pointer-events: none;
+    appearance: none;
+    accent-color: var(--accent);
+  }
+  .kosten__slider input::-webkit-slider-thumb {
+    pointer-events: auto;
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+  }
+  .kosten__slider input::-moz-range-thumb {
+    pointer-events: auto;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+  }
+  .kosten__slider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 4px;
+    transform: translateY(-50%);
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+      to right,
+      var(--line) var(--von, 0%),
+      var(--accent) var(--von, 0%),
+      var(--accent) var(--bis, 100%),
+      var(--line) var(--bis, 100%)
+    );
+  }
+  .kosten__slider input:focus-visible {
+    box-shadow: none;
+  }
+  .kosten__slider input:focus-visible::-webkit-slider-thumb {
+    box-shadow: var(--focus-ring);
+  }
+  .kosten__slider input:focus-visible::-moz-range-thumb {
+    box-shadow: var(--focus-ring);
+  }
+  .kosten__skala {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .kosten__hinweis {
+    margin: var(--space-3) 0 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+</style>

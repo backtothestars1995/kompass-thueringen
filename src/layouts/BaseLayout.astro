@@ -1,0 +1,56 @@
+---
+import '@fontsource/space-grotesk/500.css';
+import '@fontsource/space-grotesk/700.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  /** Seitentitel ohne Zusatz – „ · KOMPASS Thüringen“ wird angehängt */
+  title: string;
+  description: string;
+  headerTone?: 'light' | 'dark';
+  footer?: 'full' | 'compact';
+  /** Optional: Bild für Vorschauen in sozialen Netzwerken/Messengern */
+  image?: string;
+}
+
+const { title, description, headerTone = 'light', footer = 'compact', image } = Astro.props;
+const fullTitle = title === 'Startseite' ? 'KOMPASS Thüringen – Projektpool für Thüringer Innenstädte' : `${title} · KOMPASS Thüringen`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+    <link rel="sitemap" href={url('sitemap-index.xml')} />
+    <meta name="theme-color" content="#16181D" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="KOMPASS Thüringen" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+    <Header tone={headerTone} />
+    <main id="inhalt" tabindex="-1">
+      <slot />
+    </main>
+    <Footer variant={footer} />
+  </body>
+</html>

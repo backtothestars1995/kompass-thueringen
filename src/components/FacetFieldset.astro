@@ -1,0 +1,106 @@
+---
+/**
+ * Optionsliste einer Filter-Facette (Checkboxen mit Trefferzahl und ⓘ).
+ * Wird im Pill-Panel und in „Alle Filter“ verwendet; der Zustand wird per
+ * Skript über data-facet/value synchron gehalten.
+ */
+import InfoTip from './InfoTip.astro';
+import { FOERDERUNG_LABEL, type FacettenDef } from '../lib/filter';
+import { NUTZUNGSART_FARBE, type Nutzungsart } from '../lib/taxonomie';
+
+interface Props {
+  facette: FacettenDef;
+  /** eindeutiges Präfix für IDs (Panel oder Dialog) */
+  idPrefix: string;
+}
+const { facette: f, idPrefix } = Astro.props;
+---
+
+<fieldset class="facet">
+  <legend class="facet__legend">
+    {f.titel}
+    {f.begriff && <InfoTip begriff={f.begriff} label={f.titel} />}
+  </legend>
+  <ul class="facet__list">
+    {
+      f.werte.map((wert, i) => {
+        const id = `${idPrefix}-${f.key}-${i}`;
+        const farbe = f.key === 'nutzungsart' ? NUTZUNGSART_FARBE[wert as Nutzungsart] : undefined;
+        return (
+          <li class="facet__option">
+            <input type="checkbox" id={id} data-facet={f.key} value={wert} />
+            <label for={id}>
+              {farbe && <span class="facet__dot" style={`--dot: ${farbe}`} aria-hidden="true" />}
+              {f.key === 'foerderung' ? FOERDERUNG_LABEL[wert] : wert}
+              <span class="visually-hidden">
+                , <span data-count-for={`${f.key}|${wert}`}>0</span> Treffer
+              </span>
+            </label>
+            {f.optionInfo && <InfoTip begriff={wert} />}
+            <span class="facet__count" aria-hidden="true" data-count-for={`${f.key}|${wert}`}>
+              0
+            </span>
+          </li>
+        );
+      })
+    }
+  </ul>
+</fieldset>
+
+<style>
+  .facet {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .facet__legend {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin-bottom: var(--space-3);
+    font-weight: 600;
+  }
+  .facet__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .facet__option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-1);
+  }
+  .facet__option input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+    flex: none;
+    accent-color: var(--accent);
+  }
+  .facet__option label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    cursor: pointer;
+  }
+  .facet__option.is-empty label {
+    color: var(--muted);
+  }
+  .facet__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--dot);
+    flex: none;
+  }
+  .facet__count {
+    margin-left: auto;
+    padding-left: var(--space-3);
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
