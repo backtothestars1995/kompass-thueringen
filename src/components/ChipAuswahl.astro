@@ -1,0 +1,140 @@
+---
+/**
+ * Auswahl als Chips/Karten – echte Checkboxen (Mehrfach) bzw. Radiobuttons
+ * (Einfach), optisch als Chips. Tastatur und Screenreader funktionieren nativ.
+ */
+interface Option {
+  wert: string;
+  label?: string;
+  text?: string;
+  farbe?: string;
+}
+interface Props {
+  name: string;
+  optionen: Option[];
+  typ?: 'checkbox' | 'radio';
+  variante?: 'chip' | 'karte' | 'segment';
+  /** ID eines Fehlertexts für aria-describedby */
+  describedby?: string;
+}
+const { name, optionen, typ = 'checkbox', variante = 'chip', describedby } = Astro.props;
+---
+
+<div class:list={['chips', `chips--${variante}`]}>
+  {
+    optionen.map((o) => (
+      <label class="chips__option">
+        <input type={typ} name={name} value={o.wert} aria-describedby={describedby} />
+        <span class="chips__inhalt">
+          {o.farbe && <span class="chips__dot" style={`--dot: ${o.farbe}`} aria-hidden="true" />}
+          <span class="chips__label">{o.label ?? o.wert}</span>
+          {o.text && <span class="chips__text">{o.text}</span>}
+        </span>
+      </label>
+    ))
+  }
+</div>
+
+<style>
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .chips__option {
+    position: relative;
+    cursor: pointer;
+  }
+  .chips__option input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .chips__inhalt {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    transition:
+      background-color var(--transition),
+      border-color var(--transition);
+  }
+  .chips__option:hover .chips__inhalt {
+    border-color: var(--ink);
+  }
+  .chips__option input:checked + .chips__inhalt {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
+  }
+  .chips__option input:checked + .chips__inhalt .chips__label::after {
+    content: ' ✓';
+  }
+  .chips__option input:focus-visible + .chips__inhalt {
+    box-shadow: var(--focus-ring);
+  }
+  .chips__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--dot);
+    flex: none;
+  }
+
+  /* Karten (z. B. Projektzweck) */
+  .chips--karte {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chips--karte .chips__inhalt {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    width: 100%;
+    height: 100%;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+  .chips--karte .chips__text {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 400;
+  }
+  .chips--karte input:checked + .chips__inhalt .chips__text {
+    color: var(--on-ink-muted);
+  }
+
+  /* Segment-Umschalter (z. B. Leerstandsdauer) */
+  .chips--segment {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: var(--radius-full);
+    background: var(--sand);
+  }
+  .chips--segment .chips__inhalt {
+    border-color: transparent;
+    background: transparent;
+    font-weight: 600;
+  }
+
+  @media (max-width: 600px) {
+    .chips--karte {
+      grid-template-columns: 1fr;
+    }
+    .chips--segment {
+      border-radius: var(--radius-lg);
+    }
+  }
+</style>

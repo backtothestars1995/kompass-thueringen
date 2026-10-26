@@ -1,8 +1,849 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageStub from '../../components/PageStub.astro';
+import Logo from '../../components/Logo.astro';
+import InfoTip from '../../components/InfoTip.astro';
+import ChipAuswahl from '../../components/ChipAuswahl.astro';
+import {
+  AUFWAND_FARBE,
+  EIGENTUEMERSTRUKTUR,
+  EINWOHNERZAHL,
+  GESAMTKOSTEN,
+  KATEGORIE,
+  LEERSTANDSDAUER,
+  NUTZUNGSART,
+  NUTZUNGSART_FARBE,
+  PERSONELLER_AUFWAND,
+  PLANUNGSINSTRUMENTE_INFORMELL,
+  PROJEKTZWECK,
+  RECHTLICHE_RAHMENBEDINGUNGEN,
+  aufwandLabel,
+} from '../../lib/taxonomie';
+import { EINREICHUNG_BETREFF, EINREICHUNG_EMAIL, MAX_BILD_MB, MAX_DOKUMENT_MB, PROJEKTZWECK_KURZ } from '../../lib/einreichen';
+import { url } from '../../lib/url';
+
+const schritte = ['Basisdaten', 'Einordnung', 'Planung', 'Beschreibung', 'Aufwand & Kosten', 'Medien & Kontakt'];
+const titel = [
+  'Um welches Projekt geht es?',
+  'Worum geht es in Ihrem Projekt?',
+  'Welche Planungen gibt es?',
+  'Was wurde wann gemacht?',
+  'Was hat das Projekt gekostet?',
+  'Bilder, Dokumente und Kontakt',
+];
+const jahr = new Date().getFullYear();
 ---
 
-<BaseLayout title="Projekt einreichen" description="Reichen Sie Ihr Projekt zur Nachnutzung von Leerstand für den KOMPASS Thüringen ein.">
-  <PageStub eyebrow="Projekt einreichen" title="Projekt einreichen" />
+<BaseLayout
+  title="Projekt einreichen"
+  description="Reichen Sie Ihr Projekt zur Nachnutzung von Leerstand für den KOMPASS Thüringen ein – in sechs Schritten."
+  eigenerKopf
+>
+  <header slot="kopf" class="akopf">
+    <div class="container akopf__inner">
+      <Logo showRegion={false} />
+      <p class="akopf__titel">Projekt einreichen</p>
+      <div class="akopf__aktionen">
+        <button type="button" class="btn btn--outline btn--small" data-speichern>Zwischenspeichern</button>
+        <a class="akopf__schliessen" href={url()} aria-label="Assistent schließen und zur Startseite">×</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="assistent" data-assistent data-email={EINREICHUNG_EMAIL} data-betreff={EINREICHUNG_BETREFF}>
+    <!-- Fortschritt -->
+    <nav class="container schritte" aria-label="Schritte des Assistenten">
+      <ol class="schritte__liste">
+        {
+          schritte.map((s, i) => (
+            <li>
+              <button type="button" class="schritt" data-schritt-btn={i}>
+                <span class="schritt__nr" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span class="schritt__label">{s}</span>
+                <span class="visually-hidden" data-schritt-status />
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="schritte__balken" aria-hidden="true"><span data-fortschritt></span></div>
+    </nav>
+
+    <div class="container layout">
+      <form class="formular" novalidate data-formular>
+        <p class="formular__hinweis">
+          Felder mit <span class="pflicht" aria-hidden="true">*</span><span class="visually-hidden">Stern</span> sind Pflichtfelder.
+          Dauer: ca. 15–20 Minuten. Ihre Angaben werden automatisch in diesem Browser zwischengespeichert.
+        </p>
+        <p class="formular__wiederhergestellt" data-wiederhergestellt hidden>
+          Ihre zwischengespeicherten Angaben wurden geladen.{' '}
+          <button type="button" class="link-btn" data-neu-beginnen>Neu beginnen</button>
+        </p>
+
+        <!-- 1 Basisdaten -->
+        <section class="step" data-step="0" aria-labelledby="step-0-titel">
+          <p class="eyebrow">Schritt 1 von 6 · {schritte[0]}</p>
+          <h1 id="step-0-titel" class="step__titel" tabindex="-1">{titel[0]}</h1>
+          <div class="feld">
+            <label for="f-titel" class="feld__label">Projekttitel <span class="pflicht" aria-hidden="true">*</span></label>
+            <input id="f-titel" name="titel" type="text" required aria-describedby="e-titel" />
+            <p class="feld__fehler" id="e-titel" data-fehler-fuer="titel"></p>
+          </div>
+          <div class="feld-reihe">
+            <div class="feld">
+              <label for="f-stadt" class="feld__label">Stadt / Kommune <span class="pflicht" aria-hidden="true">*</span></label>
+              <input id="f-stadt" name="stadt" type="text" required aria-describedby="e-stadt" autocomplete="address-level2" />
+              <p class="feld__fehler" id="e-stadt" data-fehler-fuer="stadt"></p>
+            </div>
+            <div class="feld">
+              <label for="f-einwohnerzahl" class="feld__label">Einwohnerzahl</label>
+              <select id="f-einwohnerzahl" name="einwohnerzahl">
+                <option value="">Bitte wählen</option>
+                {EINWOHNERZAHL.map((e) => <option value={e}>{e}</option>)}
+              </select>
+            </div>
+          </div>
+          <div class="feld">
+            <label for="f-projekttraeger" class="feld__label">Projektträger <span class="pflicht" aria-hidden="true">*</span></label>
+            <input id="f-projekttraeger" name="projekttraeger" type="text" required aria-describedby="e-projekttraeger" />
+            <p class="feld__fehler" id="e-projekttraeger" data-fehler-fuer="projekttraeger"></p>
+          </div>
+          <fieldset class="feld">
+            <legend class="feld__label">Eigentümerstruktur vor Projektstart <span class="feld__opt">(optional, Mehrfachauswahl)</span></legend>
+            <ChipAuswahl name="eigentuemerstruktur" optionen={EIGENTUEMERSTRUKTUR.map((w) => ({ wert: w }))} />
+          </fieldset>
+        </section>
+
+        <!-- 2 Einordnung -->
+        <section class="step" data-step="1" aria-labelledby="step-1-titel" hidden>
+          <p class="eyebrow">Schritt 2 von 6 · {schritte[1]}</p>
+          <h1 id="step-1-titel" class="step__titel" tabindex="-1">{titel[1]}</h1>
+          <fieldset class="feld" data-pflicht-gruppe="projektzweck">
+            <legend class="feld__label">
+              Projektzweck <span class="pflicht" aria-hidden="true">*</span>
+              <InfoTip begriff="Projektzweck" />
+              <span class="feld__opt">(Mehrfachauswahl)</span>
+            </legend>
+            <ChipAuswahl
+              name="projektzweck"
+              variante="karte"
+              describedby="e-projektzweck"
+              optionen={PROJEKTZWECK.map((w) => ({ wert: w, label: PROJEKTZWECK_KURZ[w]?.label, text: PROJEKTZWECK_KURZ[w]?.text }))}
+            />
+            <p class="feld__fehler" id="e-projektzweck" data-fehler-fuer="projektzweck"></p>
+          </fieldset>
+          <fieldset class="feld" data-pflicht-gruppe="kategorie">
+            <legend class="feld__label">
+              Kategorie (Leerstandstyp) <span class="pflicht" aria-hidden="true">*</span>
+              <InfoTip begriff="Kategorie" label="Kategorie (Leerstandstyp)" />
+              <span class="feld__opt">(Mehrfachauswahl)</span>
+            </legend>
+            <ChipAuswahl
+              name="kategorie"
+              describedby="e-kategorie"
+              optionen={[...KATEGORIE.map((w) => ({ wert: w })), { wert: 'Weiß ich nicht – bitte einordnen' }]}
+            />
+            <p class="feld__fehler" id="e-kategorie" data-fehler-fuer="kategorie"></p>
+          </fieldset>
+          <fieldset class="feld" data-pflicht-gruppe="nutzungsart">
+            <legend class="feld__label">
+              Nutzungsart nach Projektabschluss <span class="pflicht" aria-hidden="true">*</span>
+              <InfoTip begriff="Nutzungsart nach Projektabschluss" />
+              <span class="feld__opt">(Mehrfachauswahl)</span>
+            </legend>
+            <ChipAuswahl
+              name="nutzungsart"
+              describedby="e-nutzungsart"
+              optionen={NUTZUNGSART.map((w) => ({ wert: w, farbe: NUTZUNGSART_FARBE[w] }))}
+            />
+            <p class="feld__fehler" id="e-nutzungsart" data-fehler-fuer="nutzungsart"></p>
+          </fieldset>
+          <fieldset class="feld">
+            <legend class="feld__label">
+              Dauer des Leerstands vor Projektstart
+              <InfoTip begriff="Dauer des Leerstands vor Projektstart" />
+              <span class="feld__opt">(optional, Mehrfachauswahl)</span>
+            </legend>
+            <ChipAuswahl name="leerstandsdauer" variante="segment" optionen={LEERSTANDSDAUER.map((w) => ({ wert: w }))} />
+          </fieldset>
+        </section>
+
+        <!-- 3 Planung -->
+        <section class="step" data-step="2" aria-labelledby="step-2-titel" hidden>
+          <p class="eyebrow">Schritt 3 von 6 · {schritte[2]}</p>
+          <h1 id="step-2-titel" class="step__titel" tabindex="-1">{titel[2]}</h1>
+          <fieldset class="feld">
+            <legend class="feld__label">
+              Planungsinstrumente (informell)
+              <InfoTip begriff="Planungsinstrumente (informell)" />
+              <span class="feld__opt">(optional, Mehrfachauswahl)</span>
+            </legend>
+            <ChipAuswahl name="planungsinstrumente_informell" optionen={PLANUNGSINSTRUMENTE_INFORMELL.map((w) => ({ wert: w }))} />
+          </fieldset>
+          <fieldset class="feld">
+            <legend class="feld__label">
+              Rechtliche Rahmenbedingungen
+              <InfoTip begriff="Rechtliche Rahmenbedingungen" />
+              <span class="feld__opt">(optional, Mehrfachauswahl)</span>
+            </legend>
+            <ChipAuswahl name="rechtliche_rahmenbedingungen" optionen={RECHTLICHE_RAHMENBEDINGUNGEN.map((w) => ({ wert: w }))} />
+          </fieldset>
+        </section>
+
+        <!-- 4 Beschreibung -->
+        <section class="step" data-step="3" aria-labelledby="step-3-titel" hidden>
+          <p class="eyebrow">Schritt 4 von 6 · {schritte[3]}</p>
+          <h1 id="step-3-titel" class="step__titel" tabindex="-1">{titel[3]}</h1>
+          <fieldset class="feld">
+            <legend class="feld__label">Zeitraum des Projektes</legend>
+            <div class="feld-reihe feld-reihe--schmal">
+              <div class="feld">
+                <label for="f-beginn" class="feld__unterlabel">Beginn (Jahr) <span class="pflicht" aria-hidden="true">*</span></label>
+                <input id="f-beginn" name="zeitraum_beginn" type="number" inputmode="numeric" min="1900" max={jahr + 5} required aria-describedby="e-zeitraum_beginn" />
+                <p class="feld__fehler" id="e-zeitraum_beginn" data-fehler-fuer="zeitraum_beginn"></p>
+              </div>
+              <div class="feld">
+                <label for="f-ende" class="feld__unterlabel">Ende (Jahr) <span class="feld__opt">(leer = läuft noch)</span></label>
+                <input id="f-ende" name="zeitraum_ende" type="number" inputmode="numeric" min="1900" max={jahr + 20} aria-describedby="e-zeitraum_ende" />
+                <p class="feld__fehler" id="e-zeitraum_ende" data-fehler-fuer="zeitraum_ende"></p>
+              </div>
+            </div>
+          </fieldset>
+          <div class="feld">
+            <label for="f-projektziel" class="feld__label">Projektziel</label>
+            <p class="feld__hilfe" id="h-projektziel">Was soll das Projekt erreichen? Ein bis zwei Sätze genügen.</p>
+            <textarea id="f-projektziel" name="projektziel" rows="3" aria-describedby="h-projektziel"></textarea>
+          </div>
+          <div class="feld">
+            <label for="f-beschreibung" class="feld__label">Projektbeschreibung</label>
+            <textarea id="f-beschreibung" name="beschreibung" rows="8"></textarea>
+          </div>
+          <div class="feld">
+            <label for="f-fahrplan" class="feld__label">Projektfahrplan</label>
+            <p class="feld__hilfe" id="h-fahrplan">Je Stufe eine Zeile, z. B. „2022: Ankauf des Gebäudes“. Wird im Steckbrief als Zeitleiste gezeigt.</p>
+            <textarea id="f-fahrplan" name="projektfahrplan" rows="5" aria-describedby="h-fahrplan"></textarea>
+          </div>
+          <div class="feld">
+            <label for="f-partner" class="feld__label">Partnerschaften</label>
+            <p class="feld__hilfe" id="h-partner">Beteiligte Ämter und Partner, je Partner eine Zeile.</p>
+            <textarea id="f-partner" name="partnerschaften" rows="4" aria-describedby="h-partner"></textarea>
+          </div>
+        </section>
+
+        <!-- 5 Aufwand & Kosten -->
+        <section class="step" data-step="4" aria-labelledby="step-4-titel" hidden>
+          <p class="eyebrow">Schritt 5 von 6 · {schritte[4]}</p>
+          <h1 id="step-4-titel" class="step__titel" tabindex="-1">{titel[4]}</h1>
+          <fieldset class="feld">
+            <legend class="feld__label">
+              Personeller Aufwand
+              <InfoTip begriff="Personeller Aufwand" />
+            </legend>
+            <ChipAuswahl
+              name="personeller_aufwand"
+              typ="radio"
+              optionen={PERSONELLER_AUFWAND.map((w) => ({ wert: w, label: aufwandLabel(w), farbe: AUFWAND_FARBE[w] }))}
+            />
+          </fieldset>
+          <fieldset class="feld">
+            <legend class="feld__label">
+              Gesamtkosten des Projektes
+              <InfoTip begriff="Gesamtkosten des Projektes" />
+            </legend>
+            <ChipAuswahl name="gesamtkosten" typ="radio" optionen={GESAMTKOSTEN.map((w) => ({ wert: w }))} />
+          </fieldset>
+          <fieldset class="feld">
+            <legend class="feld__label">Förderung erhalten?</legend>
+            <ChipAuswahl name="foerderung" typ="radio" optionen={[{ wert: 'ja', label: 'Ja' }, { wert: 'nein', label: 'Nein' }]} />
+          </fieldset>
+          <div class="feld" data-nur-bei-foerderung hidden>
+            <label for="f-foerderprogramm" class="feld__label">Welches Förderprogramm? <span class="feld__opt">(optional)</span></label>
+            <input id="f-foerderprogramm" name="foerderprogramm" type="text" />
+          </div>
+          <div class="feld">
+            <label for="f-hindernisse" class="feld__label">Hindernisse & wichtige Hinweise <span class="feld__opt">(optional)</span></label>
+            <p class="feld__hilfe" id="h-hindernisse">Was sollten andere Kommunen wissen, die Ähnliches vorhaben?</p>
+            <textarea id="f-hindernisse" name="hindernisse" rows="5" aria-describedby="h-hindernisse"></textarea>
+          </div>
+        </section>
+
+        <!-- 6 Medien & Kontakt -->
+        <section class="step" data-step="5" aria-labelledby="step-5-titel" hidden>
+          <p class="eyebrow">Schritt 6 von 6 · {schritte[5]}</p>
+          <h1 id="step-5-titel" class="step__titel" tabindex="-1">{titel[5]}</h1>
+          <div class="feld">
+            <label for="f-bilder" class="feld__label">Projektbilder <span class="feld__opt">(JPG oder PNG, je höchstens {MAX_BILD_MB} MB)</span></label>
+            <p class="feld__hilfe" id="h-bilder">Das erste Bild wird zum Titelbild. Bilder werden nicht hochgeladen – bitte hängen Sie sie der E-Mail an.</p>
+            <input id="f-bilder" name="bilder" type="file" accept="image/jpeg,image/png" multiple aria-describedby="h-bilder e-bilder" data-datei-max={MAX_BILD_MB} />
+            <p class="feld__fehler" id="e-bilder" data-fehler-fuer="bilder"></p>
+            <ul class="dateien" data-dateiliste="bilder"></ul>
+          </div>
+          <div class="feld">
+            <label for="f-dokumente" class="feld__label">Dokumente <span class="feld__opt">(PDF, je höchstens {MAX_DOKUMENT_MB} MB, optional)</span></label>
+            <input id="f-dokumente" name="dokumente" type="file" accept="application/pdf" multiple aria-describedby="e-dokumente" data-datei-max={MAX_DOKUMENT_MB} />
+            <p class="feld__fehler" id="e-dokumente" data-fehler-fuer="dokumente"></p>
+            <ul class="dateien" data-dateiliste="dokumente"></ul>
+          </div>
+          <div class="feld-reihe">
+            <div class="feld">
+              <label for="f-homepage" class="feld__label">Projekthomepage <span class="feld__opt">(optional)</span></label>
+              <input id="f-homepage" name="projekthomepage" type="url" placeholder="https://" aria-describedby="e-projekthomepage" />
+              <p class="feld__fehler" id="e-projekthomepage" data-fehler-fuer="projekthomepage"></p>
+            </div>
+            <div class="feld">
+              <label for="f-adresse" class="feld__label">Adresse des Objekts <span class="feld__opt">(optional)</span></label>
+              <input id="f-adresse" name="adresse" type="text" autocomplete="street-address" />
+            </div>
+          </div>
+          <fieldset class="feld">
+            <legend class="feld__label">Kontakt für den Steckbrief <span class="feld__opt">(optional)</span></legend>
+            <div class="feld-reihe">
+              <div class="feld">
+                <label for="f-k-name" class="feld__unterlabel">Name</label>
+                <input id="f-k-name" name="kontakt_name" type="text" autocomplete="name" />
+              </div>
+              <div class="feld">
+                <label for="f-k-inst" class="feld__unterlabel">Institution</label>
+                <input id="f-k-inst" name="kontakt_institution" type="text" autocomplete="organization" />
+              </div>
+              <div class="feld">
+                <label for="f-k-mail" class="feld__unterlabel">E-Mail</label>
+                <input id="f-k-mail" name="kontakt_email" type="email" autocomplete="email" />
+              </div>
+              <div class="feld">
+                <label for="f-k-tel" class="feld__unterlabel">Telefon</label>
+                <input id="f-k-tel" name="kontakt_telefon" type="tel" autocomplete="tel" />
+              </div>
+            </div>
+            <label class="check">
+              <input type="checkbox" name="kontakt_einwilligung" value="ja" />
+              Die genannte Person ist mit der Veröffentlichung ihrer Kontaktdaten im Steckbrief einverstanden.
+            </label>
+          </fieldset>
+          <div class="feld">
+            <label for="f-rueckfragen" class="feld__label">E-Mail für Rückfragen <span class="pflicht" aria-hidden="true">*</span></label>
+            <p class="feld__hilfe" id="h-rueckfragen">Wird nicht veröffentlicht.</p>
+            <input id="f-rueckfragen" name="email_rueckfragen" type="email" required autocomplete="email" aria-describedby="h-rueckfragen e-email_rueckfragen" />
+            <p class="feld__fehler" id="e-email_rueckfragen" data-fehler-fuer="email_rueckfragen"></p>
+          </div>
+          <div class="feld">
+            <label class="check">
+              <input type="checkbox" name="einverstaendnis" value="ja" required aria-describedby="e-einverstaendnis" />
+              <span>
+                Ich bin damit einverstanden, dass die eingereichten Texte und Bilder im KOMPASS Thüringen veröffentlicht werden, und
+                verfüge über die nötigen Rechte. <span class="pflicht" aria-hidden="true">*</span>
+              </span>
+            </label>
+            <p class="feld__fehler" id="e-einverstaendnis" data-fehler-fuer="einverstaendnis"></p>
+          </div>
+
+          <div class="absenden" data-absenden>
+            <h2 class="absenden__titel">Projekt absenden</h2>
+            <p>
+              Mit „Per E-Mail senden“ öffnet sich Ihr E-Mail-Programm mit allen Angaben. Hängen Sie Bilder und Dokumente bitte an und
+              senden Sie die E-Mail ab.
+              {!EINREICHUNG_EMAIL && <span class="placeholder"> [E-Mail-Adresse der Redaktion folgt]</span>}
+            </p>
+            <div class="absenden__aktionen">
+              <button type="submit" class="btn btn--primary">Per E-Mail senden</button>
+              <button type="button" class="btn btn--outline" data-herunterladen>Angaben als Textdatei speichern</button>
+            </div>
+            <p class="absenden__status" role="status" aria-live="polite" data-absenden-status></p>
+          </div>
+        </section>
+
+        <div class="navigation">
+          <button type="button" class="navigation__zurueck" data-zurueck>← Zurück</button>
+          <button type="button" class="btn btn--dark" data-weiter>Weiter →</button>
+        </div>
+      </form>
+
+      <!-- Live-Vorschau -->
+      <aside class="vorschau" aria-label="Live-Vorschau">
+        <p class="eyebrow">Live-Vorschau</p>
+        <div class="vkarte" aria-hidden="true">
+          <div class="vkarte__bild" data-v-bild>
+            <span class="vkarte__badge" data-v-badge hidden><span class="vkarte__dot" data-v-dot></span><span data-v-nutzung></span></span>
+            <span class="vkarte__platzhalter" data-v-bild-platzhalter>Ihr Titelbild (Schritt 6)</span>
+          </div>
+          <div class="vkarte__text">
+            <p class="vkarte__ort" data-v-ort>[Ihre Stadt] · [Einwohnerklasse]</p>
+            <p class="vkarte__titel" data-v-titel>[Ihr Projekttitel aus Schritt 1]</p>
+            <p class="vkarte__zweck" data-v-zweck></p>
+          </div>
+        </div>
+        <div class="vollstaendig">
+          <div class="vollstaendig__kopf">
+            <span>Vollständigkeit</span>
+            <strong data-v-prozent>0 %</strong>
+          </div>
+          <div class="vollstaendig__balken" role="progressbar" aria-label="Vollständigkeit der Angaben" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-v-balken>
+            <span></span>
+          </div>
+          <p>Je vollständiger Ihre Angaben, desto besser wird Ihr Projekt über Filter und Projekt-Finder gefunden.</p>
+        </div>
+        <p class="speicherstatus" role="status" aria-live="polite" data-speicherstatus></p>
+      </aside>
+    </div>
+  </div>
 </BaseLayout>
+
+<script>
+  import { initEinreichen } from '../../scripts/einreichen';
+  initEinreichen();
+</script>
+
+<style>
+  .akopf {
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .akopf__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--header-height);
+  }
+  .akopf__titel {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+  .akopf__aktionen {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+  }
+  .akopf__schliessen {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--paper);
+    font-size: 1.4rem;
+    text-decoration: none;
+  }
+
+  .schritte {
+    padding-block: var(--space-5) 0;
+  }
+  .schritte__liste {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+  }
+  .schritt {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1);
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+  .schritt__nr {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--sand);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .schritt.is-aktuell {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .schritt.is-aktuell .schritt__nr {
+    background: var(--accent);
+    color: var(--surface);
+  }
+  .schritt.is-fertig .schritt__nr {
+    background: var(--effort-gering);
+    color: var(--surface);
+  }
+  .schritt.is-fertig .schritt__nr::after {
+    content: '✓';
+  }
+  .schritt.is-fertig .schritt__nr {
+    font-size: 0;
+  }
+  .schritt.is-fertig .schritt__nr::after {
+    font-size: var(--text-sm);
+  }
+  .schritte__balken {
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--line);
+  }
+  .schritte__balken span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    transition: width var(--transition);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-block: var(--space-7) var(--section-gap);
+  }
+  .formular__hinweis {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .formular__wiederhergestellt {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--sand);
+    font-size: var(--text-sm);
+  }
+  .link-btn {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .step__titel {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-6);
+  }
+  .step__titel:focus {
+    outline: none;
+  }
+  .feld {
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .feld .feld {
+    margin-bottom: 0;
+  }
+  .feld__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--space-1);
+    margin-bottom: var(--space-2);
+    padding: 0;
+    font-weight: 600;
+  }
+  .feld__unterlabel {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+  .feld__opt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 400;
+  }
+  .feld__hilfe {
+    margin: -0.25rem 0 var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .pflicht {
+    color: var(--accent);
+  }
+  .feld input[type='text'],
+  .feld input[type='number'],
+  .feld input[type='email'],
+  .feld input[type='url'],
+  .feld input[type='tel'],
+  .feld select,
+  .feld textarea {
+    width: 100%;
+    min-height: 2.9rem;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid #b9b4a8;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+  .feld textarea {
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .feld input:focus-visible,
+  .feld select:focus-visible,
+  .feld textarea:focus-visible {
+    border-color: var(--ink);
+  }
+  .feld [aria-invalid='true'] {
+    border-color: var(--effort-hoch);
+  }
+  .feld__fehler {
+    margin: var(--space-1) 0 0;
+    color: #b3261e;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .feld__fehler:empty {
+    display: none;
+  }
+  .feld-reihe {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+  .feld-reihe--schmal {
+    max-width: 26rem;
+  }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .check input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.15rem;
+    flex: none;
+    accent-color: var(--accent);
+  }
+  .dateien {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+  .dateien :global(li) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .dateien :global(img) {
+    width: 3rem;
+    height: 2.25rem;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  .absenden {
+    margin-top: var(--space-6);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .absenden__titel {
+    font-size: var(--text-xl);
+  }
+  .absenden__aktionen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  .absenden__status {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-sm);
+  }
+  .absenden__status:empty {
+    display: none;
+  }
+  .navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+  .navigation__zurueck {
+    padding: var(--space-2) 0;
+    border: 0;
+    background: none;
+    font-weight: 600;
+  }
+  .navigation__zurueck[disabled] {
+    visibility: hidden;
+  }
+
+  /* Live-Vorschau */
+  .vorschau {
+    position: sticky;
+    top: var(--space-5);
+    align-self: start;
+  }
+  .vkarte {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .vkarte__bild {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    background: repeating-linear-gradient(135deg, var(--sand) 0 14px, #ddd6c7 14px 28px) center / cover no-repeat;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .vkarte__badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  .vkarte__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+  }
+  .vkarte__platzhalter {
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    background: rgb(255 255 255 / 0.7);
+  }
+  .vkarte__text {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+  .vkarte__ort {
+    margin: 0 0 var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .vkarte__titel {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .vkarte__zweck {
+    margin: var(--space-2) 0 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .vkarte__zweck:empty {
+    display: none;
+  }
+  .vollstaendig {
+    margin-top: var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+  }
+  .vollstaendig__kopf {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+  }
+  .vollstaendig__balken {
+    height: 8px;
+    margin-bottom: var(--space-3);
+    border-radius: var(--radius-full);
+    background: var(--line);
+  }
+  .vollstaendig__balken span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--effort-gering);
+    transition: width var(--transition);
+  }
+  .vollstaendig p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .speicherstatus {
+    margin-top: var(--space-3);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 1100px) {
+    .schritt__label {
+      display: none;
+    }
+    .schritt.is-aktuell .schritt__label {
+      display: inline;
+    }
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+    .vorschau {
+      position: static;
+      order: -1;
+    }
+    .vkarte {
+      display: grid;
+      grid-template-columns: 7rem 1fr;
+    }
+    .vkarte__bild {
+      aspect-ratio: auto;
+      min-height: 6rem;
+    }
+    .vkarte__platzhalter,
+    .vkarte__badge {
+      display: none;
+    }
+    .vkarte__text {
+      padding: var(--space-3) var(--space-4);
+    }
+    .vkarte__titel {
+      font-size: var(--text-base);
+    }
+  }
+  @media (max-width: 600px) {
+    .akopf__titel {
+      display: none;
+    }
+    .akopf__inner {
+      grid-template-columns: 1fr auto;
+    }
+    .feld-reihe {
+      grid-template-columns: 1fr;
+    }
+    .step__titel {
+      font-size: var(--text-2xl);
+    }
+    .schritt__nr {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+</style>

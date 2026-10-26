@@ -150,6 +150,14 @@ Fehlende Felder (z. B. Koordinaten, Ampel, Leerstandsdauer) leer lassen und in `
 8. Projekt einreichen (nach Klärung der Formularfrage)
 9. Über KOMPASS, Kontakt, Rechtliches, abschließende Prüfung Barrierefreiheit und Mobilansicht
 
+## Getroffene Entscheidungen (Oktober 2026)
+
+- **Zweck:** Prototyp (Vorlage für die spätere Umsetzung), kein Ersatz der Live-Seite.
+- **Formulare:** kein externer Dienst. „Projekt einreichen“ ist ein Assistent mit Zwischenspeichern im Browser (localStorage); „Absenden“ öffnet eine vorausgefüllte E-Mail, zusätzlich können die Angaben als Textdatei gespeichert werden. Empfängeradresse in `src/lib/einreichen.ts` (`EINREICHUNG_EMAIL`, von der Redaktion festzulegen). Kontakt per E-Mail-Link.
+- **Newsletter** und **Cookie-Einstellungen** im Footer entfallen (kein Anbieter, keine Cookies).
+- **Steckbrief/Vergleich als PDF:** Druckansicht des Browsers.
+- **Projekt-Finder:** Fragen 2 und 3 sind ein Vorschlag (`src/lib/projekt-finder.ts`), redaktionelle Abstimmung folgt.
+
 ## Offene Entscheidungen – vor Umsetzung nachfragen
 
 - **Zweck:** Prototyp (z. B. als Vorlage für das TYPO3-Büro) oder Ersatz der Live-Seite? Davon hängen Domain, Datenschutztexte und Formularlösung ab.
