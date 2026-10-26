@@ -10,7 +10,6 @@ projektzweck:
   - "Vermarktung leerstehender Objekte"
 zeitraum:
   beginn: 2024
-  ende: 2024
 leerstandsdauer:
   - "kurzfristig (1–2 Jahre)"
   - "mittelfristig (3–5 Jahre)"
@@ -50,8 +49,7 @@ hindernisse: |-
   Spagat zwischen detaillierter Informationsgewinnung und prägnantem Erhebungsbogen.
   Langer Atem in der Startphase, bis Ansiedlungsmanagement etabliert ist.
   Netzwerke unbedingt einbeziehen.
-kontakte:
-  - institution: "Stadtentwicklungsgesellschaft Rudolstadt mbH – Bereich Citymanagement / RuAnSi"
+kontakte: []
 bilder:
   - pfad: ./bilder/ruansi-rudolstadt/01.png
     alt: "RuAnSi – Bildschirmfoto 1"
@@ -62,7 +60,7 @@ bilder:
 dokumente: []
 projekthomepage: "https://www.citymanagement-rudolstadt.de"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.7197, 11.3401]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2025-04-24
 ---

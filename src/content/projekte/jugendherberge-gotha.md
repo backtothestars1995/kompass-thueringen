@@ -46,9 +46,7 @@ partnerschaften:
   - "TLVwA als Fördermittelgeber"
 hindernisse: |-
   Herausforderungen auf der Baustelle (Kabel wurden gestohlen und mussten wieder komplett neu verlegt werden)
-kontakte:
-  - institution: "SB Sanierung Gotha"
-    email: "sanierung@gotha.de"
+kontakte: []
 bilder:
   - pfad: ./bilder/jugendherberge-gotha/01.jpg
     alt: "Ecke Klosterplatz/Jüdenstraße vor der Sanierung"
@@ -63,7 +61,7 @@ bilder:
 dokumente: []
 projekthomepage: "https://www.jugendherberge.de/jugendherbergen/gotha/"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.9489, 10.7015]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2026-07-21
 ---

@@ -53,9 +53,7 @@ hindernisse: |-
   - unattraktives Umfeld der Immobilien
   - allgemein hohe Investitionsunwilligkeit
   - risikobehaftete Bausubstanz (u.a. hoher Sanierungs- und Modernisierungsstau)
-kontakte:
-  - institution: "Stadt Pößneck – Fachbereich Bau und Stadtentwicklung"
-    email: "bauamt@poessneck.de"
+kontakte: []
 bilder:
   - pfad: ./bilder/stadt-als-projektentwickler-poessneck/01.jpg
     alt: "Die Stadt als Projektentwickler, Pößneck – Bild 1"
@@ -75,7 +73,7 @@ dokumente:
   - titel: "Die Stadt Pößneck als Projektentwickler - Beispiele laufende Vorhaben und Ausblick"
     pfad: /dokumente/projekte/stadt-als-projektentwickler-poessneck-die-stadt-poessneck-als-projektentwickler-beispiele-laufende-vorhaben-und-ausblick.pdf
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.6937, 11.5966]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2025-04-25
 ---

@@ -39,8 +39,7 @@ partnerschaften:
   - "Baufirmen"
 hindernisse: |-
   Bei der traditionellen Suche nach einem potentiellen Betreiber (regional begrenzt) konnte kein Interessent mit einem Konzept gefunden werden, dass die Eckpunkte der Nutzung erfüllt (Deutsche Küche, Bespielung des Marktes mit einem Biergarten, Öffnungszeiten mindestens 5 Tage/Woche etc.). Erst die Einschaltung eines Gastro-Maklers brachte die Lösung.
-kontakte:
-  - institution: "Stadt Schmalkalden"
+kontakte: []
 bilder:
   - pfad: ./bilder/ratskeller-schmalkalden/01.jpg
     alt: "Ratskeller Schmalkalden – Bild 1"
@@ -57,7 +56,7 @@ bilder:
 dokumente: []
 projekthomepage: "https://ratskeller-schmalkalden.de"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.7214, 10.4469]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2025-11-27
 ---

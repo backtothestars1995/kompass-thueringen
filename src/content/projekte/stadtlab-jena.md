@@ -69,7 +69,7 @@ bilder:
 dokumente: []
 projekthomepage: "https://www.stadtlab-jena.de/"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.9286, 11.5893]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2025-04-17
 ---

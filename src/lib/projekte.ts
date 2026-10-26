@@ -2,31 +2,9 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Projekt = CollectionEntry<'projekte'>;
 
-const MAX_BESCHREIBUNG = 2500;
-
-/** Zeichen der Projektbeschreibung ohne Markdown-Auszeichnung und HTML-Kommentare */
-export function beschreibungslaenge(body: string | undefined): number {
-  return (body ?? '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/[*_#>`[\]()]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim().length;
-}
-
-/**
- * Alle veröffentlichten Projekte, neueste zuerst.
- * Prüft zusätzlich die Länge der Projektbeschreibung (Markdown-Inhalt).
- */
+/** Alle veröffentlichten Projekte, neueste zuerst */
 export async function getProjekte(): Promise<Projekt[]> {
   const projekte = await getCollection('projekte');
-  for (const p of projekte) {
-    const n = beschreibungslaenge(p.body);
-    if (n > MAX_BESCHREIBUNG) {
-      throw new Error(
-        `Projekt „${p.id}“: Die Projektbeschreibung ist zu lang (${n} Zeichen, erlaubt sind höchstens ${MAX_BESCHREIBUNG}).`,
-      );
-    }
-  }
   return projekte.sort(sortNeueste);
 }
 

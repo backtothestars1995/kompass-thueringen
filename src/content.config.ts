@@ -83,14 +83,10 @@ const projekte = defineCollection({
         foerderung: optional(z.boolean({ error: '„foerderung“ muss ja oder nein sein: true oder false.' })),
         foerderprogramm: optional(z.string().trim()),
         personeller_aufwand: optional(auswahl('personeller_aufwand', PERSONELLER_AUFWAND)),
-        projektziel: optional(
-          z.string().trim().max(250, { error: '„projektziel“ ist zu lang: höchstens 250 Zeichen.' }),
-        ),
+        projektziel: optional(z.string().trim()),
         projektfahrplan: liste(z.array(z.string().trim().min(1))),
         partnerschaften: liste(z.array(z.string().trim().min(1))),
-        hindernisse: optional(
-          z.string().trim().max(1500, { error: '„hindernisse“ ist zu lang: höchstens 1.500 Zeichen.' }),
-        ),
+        hindernisse: optional(z.string().trim()),
         kontakte: liste(
           z.array(
             z

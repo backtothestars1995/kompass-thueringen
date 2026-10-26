@@ -65,9 +65,7 @@ partnerschaften:
 hindernisse: |-
   Für die erfolgreiche Umsetzung ist eine enge Zusammenarbeit mit den Immobilieneigentümern entscheidend. Die Erstellung und Veröffentlichung der Immobiliensteckbriefe setzt deren Einverständnis und aktive Mitwirkung voraus. In der Praxis zeigt sich, dass Eigentümer nicht immer leicht erreichbar oder eindeutig zu identifizieren sind. Daher sollten unterschiedliche Kommunikationswege – beispielsweise Anschreiben, Telefonate, persönliche Gespräche und die Einbindung lokaler Netzwerke – genutzt werden. Ebenso wichtig ist ein verlässlicher Ansprechpartner, der das Portal kontinuierlich pflegt, Immobiliendaten aktualisiert und Anfragen koordiniert. Nur mit aktuellen Informationen und einer regelmäßigen Betreuung bleibt das Portal für Eigentümer und Interessenten gleichermaßen attraktiv und schafft dauerhaft Vertrauen in das Angebot.
   Hinweise zu den Kosten und IT-Kenntnissen: Die Internetseite ist je nach Anbieter kostengünstig (unter 5.000 €). Das Pflegen der Inhalte und die Abstimmung mit den Eigentümern ist je nach Aufwand kostenintensiver, kann aber auch intern (kommunal) übernommen werden. Für das Pflegen der Inhalte auf der Internetseite (Steckbriefe) benötigt es keine IT-Kenntnisse.
-kontakte:
-  - institution: "Citymanagement Stadt Arnstadt"
-    email: "Citymanagement@stadtverwaltung.arnstadt.de"
+kontakte: []
 bilder:
   - pfad: ./bilder/impulsraeume-arnstadt/01.jpg
     alt: "Internetseite Impulsräume Arnstadt – Ansicht 1"
@@ -84,7 +82,7 @@ bilder:
 dokumente: []
 projekthomepage: "https://impulsraeume-arnstadt.de/"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.8346, 10.9469]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2026-07-01
 ---

@@ -62,8 +62,7 @@ hindernisse: |-
   – Nicht jedes Förderprogramm passt zu ungewöhnlichen Trägermodellen. Der Antrag im Innenstadtstabilisierungsprogramm (ISSP) zog sich über ein Jahr und wurde schließlich abgelehnt; die Verzögerung kostete Zeit und Geld. Die Projektgruppe empfiehlt dennoch, Förderanträge zu stellen, die Passfähigkeit früh zu klären, das Gespräch mit Politik und Fördermittelgebern zu suchen und Zeitpuffer einzuplanen.
   Für das Miteinander
   – Neben der Arbeit sollte das gemeinsame Feiern von Erfolgen nicht zu kurz kommen – es erhält Freude und Zuversicht bis zum Abschluss. Ebenso wichtig ist es, die Nachbarschaft mitzunehmen: Für sie bedeuten lange Bauzeiten und Veränderung zunächst Stress.
-kontakte:
-  - email: "post@feuerwache-weimar.de"
+kontakte: []
 bilder:
   - pfad: ./bilder/alte-feuerwache-weimar/01.jpg
     alt: "Quartiersprojekt Alte Feuerwache Weimar – Bild 1"
@@ -79,7 +78,7 @@ bilder:
 dokumente: []
 projekthomepage: "https://feuerwache-weimar.de/start.html"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.9795, 11.3296]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2026-10-01
 ---

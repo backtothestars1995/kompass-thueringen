@@ -42,8 +42,7 @@ partnerschaften:
 hindernisse: |-
   Gemeinsames Ziel Unternehmen, Stadt
   Zusammenarbeit Unternehmen, Stadt, Fördermittelgeber
-kontakte:
-  - institution: "GEWOG GmbH Bad Salzungen – Geschäftsführung"
+kontakte: []
 bilder:
   - pfad: ./bilder/bahnhof-bad-salzungen/01.jpg
     alt: "Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld"
@@ -51,7 +50,7 @@ dokumente:
   - titel: "Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld"
     pfad: /dokumente/projekte/bahnhof-bad-salzungen-revitalisierung-bahnhofsgebaeude-und-bahnhofsumfeld.pdf
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.8117, 10.2335]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2026-02-24
 ---

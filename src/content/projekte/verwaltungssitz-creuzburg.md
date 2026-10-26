@@ -27,9 +27,7 @@ gesamtkosten: "mehr als 1.000.000 €"
 foerderung: true
 foerderprogramm: "Städtebauförderung: Aktive Stadt- und Ortsteilzentren (BL-FI), Lebendige Zentren (BL-LZ)"
 personeller_aufwand:            # Ampel hoch · mittel · gering – auf der Live-Seite nicht erfasst
-# projektziel: Text der Live-Seite hat 268 Zeichen (erlaubt: 250) und muss redaktionell gekürzt werden:
-# Die Umnutzung der ehemaligen Praetorius-Schule zum Verwaltungssitz hat die vormals dezentral an mehreren Standorten untergebrachte Verwaltung zusammengeführt und die Etablierung einer neuen öffentlichen Nutzung in dem leerstehenden Einzeldenkmal im Stadtkern erreicht.
-projektziel:
+projektziel: "Die Umnutzung der ehemaligen Praetorius-Schule zum Verwaltungssitz hat die vormals dezentral an mehreren Standorten untergebrachte Verwaltung zusammengeführt und die Etablierung einer neuen öffentlichen Nutzung in dem leerstehenden Einzeldenkmal im Stadtkern erreicht."
 projektfahrplan:
   - "2020: Erstellung Machbarkeitsstudie"
   - "2023: Beginn der baulichen Umsetzung 1.BA"
@@ -44,9 +42,7 @@ hindernisse: |-
   - Koordinierung zahlreicher Gewerke und Baufirmen
   - Kostenentwicklung in der laufenden Umsetzung
   - Das Gebäude hat als Einzeldenkmal in zentraler Lage im Sanierungsgebiet der Creuzburger Altstadt besondere städtebauliche und denkmalschutzrechtliche Anforderungen an die Umsetzung gestellt, inkl. umfangreicher Abstimmungsprozesse.
-kontakte:
-  - institution: "Stadtverwaltung Stadt Amt Creuzburg"
-  - institution: "ProjektStadt"
+kontakte: []
 bilder:
   - pfad: ./bilder/verwaltungssitz-creuzburg/01.jpg
     alt: "Sanierte Südfassade des Verwaltungssitzes Stadt Amt Creuzburg"
@@ -54,7 +50,7 @@ bilder:
     alt: "Neu gestalteter Innenhof des sanierten Verwaltungssitzes"
 dokumente: []
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [51.0505, 10.2457]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2026-10-08
 ---

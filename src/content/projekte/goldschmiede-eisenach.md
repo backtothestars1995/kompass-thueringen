@@ -61,7 +61,7 @@ dokumente:
     pfad: /dokumente/projekte/goldschmiede-eisenach-muster-weiterleitungsvertrag-versuchslabore.pdf
 projekthomepage: "https://www.eisenach.de/rathaus/rathaus-verwaltung/fachbereiche/stadtentwicklung/goldschmiede-eisenach/"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [50.9748, 10.3199]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2025-04-17
 ---

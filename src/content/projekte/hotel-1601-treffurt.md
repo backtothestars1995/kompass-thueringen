@@ -40,8 +40,7 @@ partnerschaften:
   - "Aktion Mensch e. V. als Fördermittelgeber für Ausstattung"
 hindernisse: |-
   Es ist ein erhöhter Aufwand erforderlich, um die Nutzbarmachung hinsichtlich der Vereinbarkeit historischer Strukturen mit Brandschutz und Barrierefreiheit zu gewährleisten.
-kontakte:
-  - institution: "Stadt Treffurt"
+kontakte: []
 bilder:
   - pfad: ./bilder/hotel-1601-treffurt/01.jpg
     alt: "Schwebdaer Hof „Hotel 1601“ – Bild 1"
@@ -58,7 +57,7 @@ dokumente:
     pfad: /dokumente/projekte/hotel-1601-treffurt-schwebdaer-hof-hotel-1601.pdf
 projekthomepage: "https://www.hotel1601.de/"
 adresse:
-koordinaten:                    # [Breitengrad, Längengrad] – auf der Live-Seite nicht erfasst
+koordinaten: [51.1363, 10.2337]   # vorläufig: Stadtmittelpunkt – genaue Lage nachtragen
 im_fokus: false
 veroeffentlicht_am: 2026-07-01
 ---

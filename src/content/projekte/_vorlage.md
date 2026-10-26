@@ -72,7 +72,7 @@ zeitraum:
   beginn: 2024                              # Pflicht, Jahreszahl
   # ende: 2025                              # leer lassen = Projekt läuft noch
 
-projektziel: "Ein Satz zum Ziel des Projekts (höchstens 250 Zeichen)."
+projektziel: "Kurz und knapp: Was soll das Projekt erreichen?"
 
 projektfahrplan:                            # je Stufe ein Stichpunkt → Zeitleiste
   - "Erste Stufe"
@@ -90,7 +90,7 @@ gesamtkosten: "bis 50.000 €"
 foerderung: true                            # true = ja, false = nein
 foerderprogramm: "Name des Förderprogramms" # optional
 
-hindernisse: "Erfahrungen für Nachahmer (optional, höchstens 1.500 Zeichen)."
+hindernisse: "Erfahrungen für Nachahmer (optional)."
 
 # ── 6. Medien & Kontakt ─────────────────────────────────────────────
 bilder:                                     # erstes Bild = Hauptbild
@@ -110,6 +110,7 @@ koordinaten: [50.9787, 11.0328]             # [Breitengrad, Längengrad] – nö
 #   Tipp: Ort auf openstreetmap.org suchen, Rechtsklick → „Adresse anzeigen“
 
 kontakte:                                   # nur mit Einwilligung der Person veröffentlichen!
+#   Ohne Einträge („kontakte: []“) zeigt der Steckbrief einen Platzhalter.
 #   Jede Angabe ist optional, mindestens eine muss ausgefüllt sein.
   - name: "Vorname Nachname"
     institution: "Institution"
@@ -121,6 +122,6 @@ im_fokus: false                             # true = „Projekt im Fokus“ auf 
 veroeffentlicht_am: 2026-10-26              # Datum der Veröffentlichung (JJJJ-MM-TT)
 ---
 
-Hier steht die Projektbeschreibung als Fließtext (höchstens 2.500 Zeichen).
+Hier steht die Projektbeschreibung als Fließtext.
 
 Absätze werden durch eine Leerzeile getrennt. **Fett** und *kursiv* sind möglich.

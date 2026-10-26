@@ -6,11 +6,11 @@ Fehlende Felder sind in den Projektdateien leer gelassen. Hier steht, was die Re
 ## Gilt für alle Projekte
 
 - **Personeller Aufwand (Ampel):** auf der Live-Seite nicht erfasst.
-- **Koordinaten:** auf der Live-Seite nicht erfasst. Ohne Koordinaten erscheint ein Projekt nicht auf der Karte.
+- **Koordinaten:** auf der Live-Seite nicht erfasst. Vorläufig ist der Stadtmittelpunkt eingetragen (Kommentar „vorläufig“ in der Datei), damit die Projekte auf der Karte erscheinen. Die genaue Lage des Objekts bitte nachtragen.
 - **Adresse:** auf der Live-Seite nicht erfasst.
-- **Kontakte:** Personennamen sowie persönliche E-Mail-Adressen und Telefonnummern wurden aus Datenschutzgründen nicht übernommen, nur Institutionen und Funktionsadressen (z. B. bauamt@…). Ob die Personen der Veröffentlichung zugestimmt haben, ist zu klären.
+- **Kontakte:** vorerst nicht übernommen (Entscheidung der Redaktion); der Steckbrief zeigt einen Platzhalter. Kontakte nur mit Einwilligung der Personen nachtragen.
 - **Alternativtexte:** Die Live-Seite hat als Bildbeschreibung meist nur Projekttitel oder Dateinamen. Die Alternativtexte wurden daraus abgeleitet und sollten redaktionell präzisiert werden (Was ist auf dem Bild zu sehen?).
-- **Leerstandsdauer:** Die alten Werte wurden umgerechnet: „unter 2 Jahre“ → kurzfristig (1–2 Jahre), „2-5 Jahre“ → mittelfristig (3–5 Jahre), „über 5 Jahre“ → langfristig (über 5 Jahre). Bitte bestätigen.
+- **Leerstandsdauer:** Die alten Werte wurden umgerechnet: „unter 2 Jahre“ → kurzfristig (1–2 Jahre), „2-5 Jahre“ → mittelfristig (3–5 Jahre), „über 5 Jahre“ → langfristig (über 5 Jahre). Von der Redaktion bestätigt.
 - **Zeitraum:** Die neue Seite speichert nur Jahre. Monatsangaben der Live-Seite (z. B. „10/2022 bis 08/2025“) entfallen.
 - **Projekt im Fokus:** auf der Live-Seite nicht vorhanden. Noch kein Projekt ausgewählt (`im_fokus: true`).
 
@@ -52,7 +52,7 @@ Datei: `src/content/projekte/bahnhof-bad-salzungen.md` · Quelle: https://www.ko
 ### Rudolstadt – RuAnSi – Das Rudolstädter Ansiedlungs- und Leerstandsmanagement
 Datei: `src/content/projekte/ruansi-rudolstadt.md` · Quelle: https://www.kompass-thueringen.de/project/ruansi-das-rudolstaedter-ansiedlungs-und-leerstandsmanagement/
 
-- Zeitraum auf der Live-Seite: „2024“ – übernommen als Beginn und Ende 2024 (abgeschlossen). Falls das Projekt noch läuft, `ende` löschen.
+- Zeitraum auf der Live-Seite: „2024“ – das Projekt läuft noch (laut Redaktion), übernommen als „seit 2024“
 
 ### Stadt Treffurt – Schwebdaer Hof „Hotel 1601“
 Datei: `src/content/projekte/hotel-1601-treffurt.md` · Quelle: https://www.kompass-thueringen.de/project/schwebdaer-hof-hotel-1601/
@@ -74,7 +74,7 @@ Datei: `src/content/projekte/jugendherberge-gotha.md` · Quelle: https://www.kom
 ### Stadt Amt Creuzburg – Umnutzung ehemaliges Schulgebäude zum Verwaltungssitz Stadt Amt Creuzburg
 Datei: `src/content/projekte/verwaltungssitz-creuzburg.md` · Quelle: https://www.kompass-thueringen.de/project/umnutzung-ehemaliges-schulgebaeude-zum-verwaltungssitz-stadt-amt-creuzburg/
 
-- Projektziel zu lang (268 statt max. 250 Zeichen) – muss redaktionell gekürzt werden; Originaltext steht als Kommentar in der Datei
+- keine weiteren Punkte
 
 ## Weitere Inhalte der Redaktion
 
