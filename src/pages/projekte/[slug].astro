@@ -1,0 +1,1164 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image, getImage } from 'astro:assets';
+import { marked } from 'marked';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NutzungBadge from '../../components/NutzungBadge.astro';
+import InfoTip from '../../components/InfoTip.astro';
+import Ampel from '../../components/Ampel.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import LageKarte from '../../components/LageKarte.astro';
+import Galerie from '../../components/Galerie.astro';
+import { aehnlicheProjekte, getProjekte, zeitraumText, type Projekt } from '../../lib/projekte';
+import { eckdaten } from '../../lib/eckdaten';
+import { url } from '../../lib/url';
+import { geschuetzt } from '../../lib/text';
+
+export const getStaticPaths = (async () => {
+  const alle = await getProjekte();
+  return alle.map((projekt, i) => ({
+    params: { slug: projekt.id },
+    props: { projekt, alle, naechstes: alle[(i + 1) % alle.length] },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  projekt: Projekt;
+  alle: Projekt[];
+  naechstes: Projekt;
+}
+const { projekt, alle, naechstes } = Astro.props;
+const p = projekt.data;
+
+// Projektbeschreibung in zwei Hälften teilen, dazwischen Galeriebilder 2 und 3
+const bloecke = (projekt.body ?? '').trim().split(/\n{2,}/).filter(Boolean);
+const teilung = bloecke.length > 1 ? Math.ceil(bloecke.length / 2) : bloecke.length;
+const md = (s: string) => marked.parse(s, { async: false, gfm: true }) as string;
+const beschreibungA = md(bloecke.slice(0, teilung).join('\n\n'));
+const beschreibungB = md(bloecke.slice(teilung).join('\n\n'));
+const zwischenbilder = p.bilder.slice(1, 3);
+
+// Mehrzeilige Felder: Zeilen mit „- “ werden zu Aufzählungen
+const zeilen = (text: string) => text.split('\n').map((l) => l.trim()).filter(Boolean);
+const istListe = (text: string) => zeilen(text).every((l) => l.startsWith('- '));
+const ohneStrich = (l: string) => l.replace(/^- /, '');
+
+const fahrplan = p.projektfahrplan.map((stufe) => {
+  const [kopf, ...rest] = zeilen(stufe);
+  return { kopf: ohneStrich(kopf), punkte: rest.map(ohneStrich) };
+});
+
+const zeilenEckdaten = eckdaten(projekt);
+const aehnliche = aehnlicheProjekte(projekt, alle);
+const hauptbild = p.bilder[0];
+const ogImage = hauptbild ? (await getImage({ src: hauptbild.pfad, width: 1200, format: 'jpg' })).src : undefined;
+
+const description =
+  p.projektziel && !istListe(p.projektziel)
+    ? p.projektziel
+    : `${p.titel} in ${p.stadt}: Projektsteckbrief im KOMPASS Thüringen – Ziel, Fahrplan, Kosten und Erfahrungen.`;
+
+const kapitel = [
+  { id: 'projektziel', titel: 'Projektziel' },
+  { id: 'projektbeschreibung', titel: 'Projektbeschreibung' },
+  { id: 'projektfahrplan', titel: 'Projektfahrplan' },
+  { id: 'partnerschaften', titel: 'Partnerschaften' },
+  { id: 'hindernisse', titel: 'Hindernisse & Hinweise', lang: 'Hindernisse & wichtige Hinweise' },
+  { id: 'kontakte', titel: 'Kontakte' },
+  { id: 'eckdaten', titel: 'Eckdaten & Lage' },
+];
+const nr = (id: string) => String(kapitel.findIndex((k) => k.id === id) + 1).padStart(2, '0');
+const kapitelTitel = (id: string) => {
+  const k = kapitel.find((k) => k.id === id)!;
+  return k.lang ?? k.titel;
+};
+const dokumentHref = (pfad: string) => url(pfad.replace(/^\//, ''));
+---
+
+<BaseLayout title={`${p.titel} – ${p.stadt}`} description={description} image={ogImage}>
+  <article class="steckbrief">
+    <!-- Kopf mit Hauptbild -->
+    <header class="hero">
+      {
+        hauptbild && (
+          <Image
+            class="hero__bild"
+            src={hauptbild.pfad}
+            alt={hauptbild.alt}
+            widths={[640, 1024, 1600, 1920]}
+            sizes="100vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )
+      }
+      <div class="hero__shade" aria-hidden="true"></div>
+      <div class="container hero__inner">
+        <nav class="breadcrumb" aria-label="Brotkrumen">
+          <ol>
+            <li><a href={url('entdecken/')}>← Entdecken</a></li>
+            <li aria-current="page">{p.stadt}</li>
+          </ol>
+        </nav>
+        <div class="hero__bottom">
+          <div class="hero__text">
+            {
+              p.nutzungsart.length > 0 && (
+                <ul class="hero__badges" aria-label="Nutzungsart nach Projektabschluss">
+                  {p.nutzungsart.map((n) => (
+                    <li>
+                      <NutzungBadge nutzungsart={n} tone="dark" />
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+            <h1>{p.titel}</h1>
+            <p class="hero__stadt">{p.stadt}</p>
+          </div>
+          <div class="hero__actions">
+            {
+              p.bilder.length > 1 && (
+                <button type="button" class="btn btn--light btn--small" data-galerie-open="0">
+                  Alle {p.bilder.length} Bilder
+                </button>
+              )
+            }
+            <div class="hero__tools">
+              <button type="button" class="btn btn--glass btn--small" data-merken={projekt.id} aria-pressed="false">
+                <span data-merken-label>Merken</span>
+              </button>
+              <button type="button" class="btn btn--glass btn--small" data-vergleich={projekt.id} aria-pressed="false">
+                Vergleichen
+              </button>
+              <button type="button" class="btn btn--glass btn--small" data-teilen>Teilen</button>
+            </div>
+            <p class="hero__status" role="status" data-teilen-status></p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Kennzahlen-Band -->
+    <section class="kennzahlen" aria-label="Kennzahlen">
+      <dl class="container kennzahlen__grid">
+        <div>
+          <dt>Zeitraum des Projektes</dt>
+          <dd class="kennzahlen__wert">{zeitraumText(p.zeitraum)}</dd>
+        </div>
+        <div>
+          <dt>Gesamtkosten <InfoTip begriff="Gesamtkosten des Projektes" /></dt>
+          <dd class="kennzahlen__wert">{p.gesamtkosten ? geschuetzt(p.gesamtkosten) : <span class="placeholder">[keine Angabe]</span>}</dd>
+        </div>
+        <div>
+          <dt>Förderung</dt>
+          <dd class="kennzahlen__wert">
+            {p.foerderung === undefined ? <span class="placeholder">[keine Angabe]</span> : p.foerderung ? 'Ja' : 'Nein'}
+          </dd>
+          {p.foerderung && p.foerderprogramm && <dd class="kennzahlen__sub">{p.foerderprogramm}</dd>}
+        </div>
+        <div>
+          <dt>Einwohnerzahl</dt>
+          <dd class="kennzahlen__wert">{p.einwohnerzahl ?? <span class="placeholder">[keine Angabe]</span>}</dd>
+        </div>
+        <div>
+          <dt>Personeller Aufwand <InfoTip begriff="Personeller Aufwand" /></dt>
+          <dd><Ampel wert={p.personeller_aufwand} size="gross" /></dd>
+          <dd class="kennzahlen__sub">Rot = hoch · Gelb = mittel · Grün = gering</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="container layout">
+      <!-- Mitlaufende Inhaltsnavigation -->
+      <aside class="toc">
+        <nav aria-labelledby="toc-titel">
+          <p class="eyebrow" id="toc-titel">Inhalt</p>
+          <ol class="toc__list">
+            {
+              kapitel.map((k, i) => (
+                <li>
+                  <a href={`#${k.id}`} data-toc-link={k.id}>
+                    <span class="toc__nr">{String(i + 1).padStart(2, '0')}</span>
+                    {k.titel}
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="toc__progress" aria-hidden="true"><span data-toc-progress></span></div>
+        </nav>
+        <div class="toc__actions">
+          <button type="button" class="btn btn--dark" data-drucken>Steckbrief als PDF</button>
+          {
+            p.projekthomepage && (
+              <a class="btn btn--outline" href={p.projekthomepage} target="_blank" rel="noopener">
+                Projekthomepage ↗<span class="visually-hidden"> (öffnet in neuem Fenster)</span>
+              </a>
+            )
+          }
+        </div>
+      </aside>
+
+      <div class="kapitel">
+        <section id="projektziel" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('projektziel')} · Projektziel</h2>
+          {
+            !p.projektziel ? (
+              <p class="leitsatz placeholder">[Projektziel]</p>
+            ) : istListe(p.projektziel) ? (
+              <ul class="leitsatz leitsatz--liste">
+                {zeilen(p.projektziel).map((l) => (
+                  <li>{ohneStrich(l)}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="leitsatz">„{p.projektziel}“</p>
+            )
+          }
+        </section>
+
+        <section id="projektbeschreibung" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('projektbeschreibung')} · Projektbeschreibung</h2>
+          {bloecke.length === 0 && <p class="placeholder">[Projektbeschreibung]</p>}
+          <div class="prose" set:html={beschreibungA} />
+          {
+            zwischenbilder.length > 0 && (
+              <div class:list={['zwischenbilder', { 'zwischenbilder--eins': zwischenbilder.length === 1 }]}>
+                {zwischenbilder.map((b, i) => (
+                  <figure>
+                    <button type="button" class="zwischenbilder__btn" data-galerie-open={i + 1} aria-label={`Bild vergrößern: ${b.alt}`}>
+                      <Image src={b.pfad} alt={b.alt} widths={[400, 640, 900]} sizes="(max-width: 700px) 100vw, 420px" />
+                    </button>
+                    {b.bildunterschrift && <figcaption>{b.bildunterschrift}</figcaption>}
+                  </figure>
+                ))}
+              </div>
+            )
+          }
+          <div class="prose" set:html={beschreibungB} />
+        </section>
+
+        <section id="projektfahrplan" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('projektfahrplan')} · Projektfahrplan</h2>
+          {
+            fahrplan.length === 0 ? (
+              <p class="placeholder">[Stichpunkte aus dem Projektfahrplan]</p>
+            ) : (
+              <ol class="zeitleiste">
+                {fahrplan.map((stufe, i) => (
+                  <li class:list={['zeitleiste__stufe', { 'is-last': i === fahrplan.length - 1 }]}>
+                    <span class="zeitleiste__label">Stufe {i + 1}</span>
+                    <p class="zeitleiste__text">{stufe.kopf}</p>
+                    {stufe.punkte.length > 0 && (
+                      <ul class="zeitleiste__punkte">
+                        {stufe.punkte.map((pt) => (
+                          <li>{pt}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )
+          }
+        </section>
+
+        <section id="partnerschaften" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('partnerschaften')} · Partnerschaften</h2>
+          {
+            p.partnerschaften.length === 0 ? (
+              <p class="placeholder">[Beteiligte Ämter / Partner]</p>
+            ) : (
+              <ul class="partner">
+                {p.partnerschaften.map((pt) => (
+                  <li>{pt}</li>
+                ))}
+              </ul>
+            )
+          }
+        </section>
+
+        <section id="hindernisse" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('hindernisse')} · {kapitelTitel('hindernisse')}</h2>
+          <div class="hinweisbox">
+            <svg class="hinweisbox__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"></path>
+            </svg>
+            <div>
+              <h3 class="hinweisbox__titel">Erfahrungen für Nachahmer</h3>
+              {
+                !p.hindernisse ? (
+                  <p class="placeholder">[Hindernisse & wichtige Hinweise]</p>
+                ) : istListe(p.hindernisse) ? (
+                  <ul>
+                    {zeilen(p.hindernisse).map((l) => (
+                      <li>{ohneStrich(l)}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  zeilen(p.hindernisse).map((l) => <p>{l}</p>)
+                )
+              }
+            </div>
+          </div>
+        </section>
+
+        <section id="kontakte" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('kontakte')} · Kontakte</h2>
+          {
+            p.kontakte.length === 0 ? (
+              <p class="placeholder">[Ansprechperson · Institution · E-Mail · Telefon]</p>
+            ) : (
+              <ul class="kontakte">
+                {p.kontakte.map((k) => (
+                  <li class="kontakt">
+                    <div class="kontakt__text">
+                      <p class="kontakt__name">{k.name ?? k.institution ?? k.email}</p>
+                      <p class="kontakt__details">
+                        {k.name && k.institution && <span>{k.institution}</span>}
+                        {k.email && (k.name || k.institution) && <a href={`mailto:${k.email}`}>{k.email}</a>}
+                        {k.telefon && <a href={`tel:${k.telefon.replace(/[^\d+]/g, '')}`}>{k.telefon}</a>}
+                      </p>
+                    </div>
+                    {k.email && (
+                      <a class="btn btn--dark btn--small" href={`mailto:${k.email}`}>
+                        Kontakt aufnehmen
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </section>
+
+        <section id="eckdaten" class="kapitel__abschnitt" data-kapitel>
+          <h2 class="eyebrow">{nr('eckdaten')} · Eckdaten & Lage</h2>
+          <dl class="eckdaten">
+            {
+              zeilenEckdaten.map((z) => (
+                <div class="eckdaten__zeile">
+                  <dt>
+                    {z.label}
+                    {z.begriff && <InfoTip begriff={z.begriff} label={z.label} />}
+                  </dt>
+                  <dd>
+                    {z.aufwand ? (
+                      <Ampel wert={z.aufwand} />
+                    ) : z.wert ? (
+                      z.wert
+                    ) : (
+                      <span class="placeholder">[keine Angabe]</span>
+                    )}
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
+          <div class="lagezeile">
+            <LageKarte koordinaten={p.koordinaten} nutzungsart={p.nutzungsart[0]} titel={p.titel} slug={projekt.id} />
+            <div class="lagekarte-info">
+              <div>
+                <h3 class="lagekarte-info__titel">Projekthomepage</h3>
+                {
+                  p.projekthomepage ? (
+                    <a href={p.projekthomepage} target="_blank" rel="noopener" class="link-arrow lagekarte-info__url">
+                      {p.projekthomepage.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')} ↗
+                      <span class="visually-hidden"> (öffnet in neuem Fenster)</span>
+                    </a>
+                  ) : (
+                    <p class="placeholder">[keine Angabe]</p>
+                  )
+                }
+              </div>
+              <div>
+                <h3 class="lagekarte-info__titel">Lage</h3>
+                <p>{p.adresse ?? <span class="placeholder">[Adresse, sofern angegeben]</span>}</p>
+              </div>
+              {
+                p.dokumente.length > 0 && (
+                  <div>
+                    <h3 class="lagekarte-info__titel">Dokumente</h3>
+                    <ul class="dokumente">
+                      {p.dokumente.map((d) => {
+                        const pfad = typeof d === 'string' ? d : d.pfad;
+                        const titel = typeof d === 'string' ? pfad.split('/').pop() : d.titel;
+                        return (
+                          <li>
+                            <a href={dokumentHref(pfad)} class="link-arrow" download>
+                              {titel} <span class="dokumente__typ">(PDF)</span>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Weiterstöbern -->
+    <section class="container section weiter" aria-labelledby="aehnliche-titel">
+      <span class="eyebrow">Weiterstöbern</span>
+      <h2 id="aehnliche-titel">Ähnliche Projekte</h2>
+      <ul class="weiter__grid">
+        {
+          aehnliche.map(({ projekt: q, grund }) => (
+            <li>
+              <ProjectCard projekt={q} hinweis={grund} meta={false} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      naechstes.id !== projekt.id && (
+        <section class="container naechstes-wrap" aria-label="Nächstes Projekt">
+          <a class="naechstes" href={url(`projekte/${naechstes.id}/`)}>
+            <div class="naechstes__text">
+              <span class="eyebrow">Nächstes Projekt</span>
+              <span class="naechstes__titel">{naechstes.data.titel} →</span>
+              <span class="naechstes__stadt">{naechstes.data.stadt}</span>
+            </div>
+            {naechstes.data.bilder[0] && (
+              <Image class="naechstes__bild" src={naechstes.data.bilder[0].pfad} alt="" widths={[480, 800]} sizes="(max-width: 700px) 100vw, 40vw" />
+            )}
+          </a>
+        </section>
+      )
+    }
+  </article>
+
+  <Galerie bilder={p.bilder} titel={p.titel} />
+</BaseLayout>
+
+<script>
+  import { initProjektAktionen } from '../../scripts/projekt-aktionen';
+  initProjektAktionen();
+
+  // Steckbrief als PDF: Druckansicht des Browsers („Als PDF speichern“)
+  document.querySelector('[data-drucken]')?.addEventListener('click', () => window.print());
+
+  // Teilen: System-Teilen-Dialog, sonst Link kopieren
+  const status = document.querySelector<HTMLElement>('[data-teilen-status]');
+  document.querySelector('[data-teilen]')?.addEventListener('click', async () => {
+    const data = { title: document.title, url: location.href };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+      await navigator.clipboard.writeText(location.href);
+      if (status) status.textContent = 'Link kopiert.';
+    } catch {
+      if (status) status.textContent = '';
+    }
+    setTimeout(() => status && (status.textContent = ''), 4000);
+  });
+
+  // Mitlaufende Inhaltsnavigation: aktuelles Kapitel markieren
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')].map((a) => [a.dataset.tocLink!, a]),
+  );
+  const sections = [...document.querySelectorAll<HTMLElement>('[data-kapitel]')];
+  const progress = document.querySelector<HTMLElement>('[data-toc-progress]');
+  const setActive = () => {
+    const linie = window.innerHeight * 0.3;
+    let aktiv = sections[0];
+    for (const s of sections) if (s.getBoundingClientRect().top <= linie) aktiv = s;
+    links.forEach((a, id) => (id === aktiv.id ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+    if (progress) progress.style.width = `${((sections.indexOf(aktiv) + 1) / sections.length) * 100}%`;
+  };
+  setActive();
+  addEventListener('scroll', setActive, { passive: true });
+</script>
+
+<style>
+  /* Kopf */
+  .hero {
+    position: relative;
+    min-height: clamp(26rem, 60vh, 36rem);
+    display: flex;
+    background: var(--ink);
+    color: var(--on-ink);
+    overflow: hidden;
+  }
+  .hero__bild {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(22 24 29 / 0.55) 0%, rgb(22 24 29 / 0.15) 35%, rgb(22 24 29 / 0.9) 100%);
+  }
+  .hero__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-7);
+    padding-block: var(--space-5) var(--space-6);
+  }
+  .breadcrumb ol {
+    display: flex;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+  .breadcrumb li + li::before {
+    content: '/';
+    margin-right: var(--space-2);
+    color: var(--on-ink-muted);
+  }
+  .breadcrumb a {
+    color: var(--on-ink);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+  .breadcrumb {
+    text-shadow: 0 1px 6px rgb(22 24 29 / 0.8);
+  }
+  .breadcrumb [aria-current] {
+    color: var(--on-ink);
+  }
+  .hero__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+  .hero__text {
+    max-width: 52rem;
+  }
+  .hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+  }
+  .hero h1 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+    text-shadow: 0 2px 16px rgb(22 24 29 / 0.4);
+  }
+  .hero__stadt {
+    margin: 0;
+    color: var(--on-ink);
+    font-size: var(--text-lg);
+  }
+  .hero__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
+  .hero__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .hero__status {
+    min-height: 1.2em;
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .btn--glass {
+    background: rgb(22 24 29 / 0.55);
+    color: var(--on-ink);
+    border-color: rgb(246 244 239 / 0.35);
+    backdrop-filter: blur(6px);
+  }
+  .btn--glass:hover {
+    background: rgb(22 24 29 / 0.8);
+  }
+  .btn--glass[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .btn--glass[aria-pressed='true']::before {
+    content: '✓';
+  }
+
+  /* Kennzahlen-Band */
+  .kennzahlen {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .kennzahlen__grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    margin-block: 0;
+  }
+  .kennzahlen__grid > div {
+    padding: var(--space-5) var(--space-4);
+    border-left: 1px solid var(--line);
+  }
+  .kennzahlen__grid > div:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .kennzahlen dt {
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+  }
+  .kennzahlen dd {
+    margin: 0;
+  }
+  .kennzahlen__wert {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.15;
+  }
+  .kennzahlen__wert .placeholder {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .kennzahlen__sub {
+    margin-top: var(--space-2) !important;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+
+  /* Inhalt mit Seitennavigation */
+  .layout {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-block: var(--space-8);
+  }
+  .toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    align-self: start;
+  }
+  .toc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .toc__list a {
+    display: flex;
+    gap: var(--space-3);
+    padding-block: var(--space-1);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+  .toc__list a:hover {
+    color: var(--ink);
+  }
+  .toc__list a[aria-current] {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .toc__nr {
+    width: 1.5rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .toc__progress {
+    height: 3px;
+    margin-block: var(--space-4) var(--space-6);
+    background: var(--line);
+    border-radius: var(--radius-full);
+  }
+  .toc__progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--accent);
+    border-radius: inherit;
+    transition: width var(--transition);
+  }
+  .toc__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .kapitel__abschnitt + .kapitel__abschnitt {
+    margin-top: var(--space-8);
+  }
+  .kapitel h2.eyebrow {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow);
+    margin-bottom: var(--space-4);
+  }
+  .leitsatz {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.3;
+    max-width: 40ch;
+    margin: 0;
+  }
+  .leitsatz--liste {
+    max-width: 60ch;
+    padding-left: 1.2em;
+    font-size: var(--text-xl);
+  }
+  .leitsatz--liste li + li {
+    margin-top: var(--space-2);
+  }
+  .leitsatz.placeholder {
+    font-style: normal;
+  }
+  .prose {
+    max-width: 68ch;
+  }
+  .prose :global(p) {
+    margin-bottom: var(--space-4);
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.3em;
+    margin-bottom: var(--space-4);
+  }
+  .zwischenbilder {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-block: var(--space-6);
+  }
+  .zwischenbilder--eins {
+    grid-template-columns: minmax(0, 32rem);
+  }
+  .zwischenbilder figure {
+    margin: 0;
+  }
+  .zwischenbilder__btn {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .zwischenbilder img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+  .zwischenbilder figcaption {
+    margin-top: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  /* Zeitleiste */
+  .zeitleiste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .zeitleiste__stufe {
+    position: relative;
+    padding: 0 0 var(--space-5) var(--space-6);
+  }
+  .zeitleiste__stufe::before {
+    content: '';
+    position: absolute;
+    left: 0.4rem;
+    top: 0.5rem;
+    bottom: -0.5rem;
+    width: 2px;
+    background: var(--line);
+  }
+  .zeitleiste__stufe.is-last::before {
+    display: none;
+  }
+  .zeitleiste__stufe::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .zeitleiste__stufe.is-last::after {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .zeitleiste__label {
+    display: block;
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  .zeitleiste__text {
+    margin: 0;
+    font-weight: 600;
+    max-width: 65ch;
+  }
+  .zeitleiste__punkte {
+    margin: var(--space-2) 0 0;
+    padding-left: 1.2em;
+    color: var(--ink);
+    max-width: 65ch;
+  }
+
+  /* Partner */
+  .partner {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .partner li {
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+
+  /* Hindernisse */
+  .hinweisbox {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: var(--ink);
+    color: var(--on-ink);
+    border-radius: var(--radius-xl);
+  }
+  .hinweisbox__icon {
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    color: var(--accent-light);
+  }
+  .hinweisbox__titel {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+  }
+  .hinweisbox p,
+  .hinweisbox li {
+    color: var(--on-ink);
+    max-width: 65ch;
+  }
+  .hinweisbox ul {
+    margin: 0;
+    padding-left: 1.2em;
+  }
+  .hinweisbox p:last-child {
+    margin-bottom: 0;
+  }
+  .hinweisbox .placeholder {
+    color: var(--on-ink-muted);
+  }
+
+  /* Kontakte */
+  .kontakte {
+    display: grid;
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .kontakt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+  .kontakt__name {
+    margin: 0;
+    font-weight: 600;
+  }
+  .kontakt__details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .kontakt__details a {
+    color: inherit;
+  }
+
+  /* Eckdaten */
+  .eckdaten {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-7);
+    margin: 0 0 var(--space-6);
+  }
+  .eckdaten__zeile {
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--line);
+  }
+  .eckdaten dt {
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .eckdaten dd {
+    margin: var(--space-1) 0 0;
+    font-weight: 600;
+  }
+  .lagezeile {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .lagekarte-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+  }
+  .lagekarte-info p {
+    margin: 0;
+  }
+  .lagekarte-info__titel {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--muted);
+    margin: 0 0 var(--space-1);
+  }
+  .lagekarte-info__url {
+    overflow-wrap: anywhere;
+  }
+  .dokumente {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .dokumente li + li {
+    margin-top: var(--space-2);
+  }
+  .dokumente a {
+    overflow-wrap: anywhere;
+  }
+  .dokumente__typ {
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* Weiterstöbern */
+  .weiter {
+    border-top: 1px solid var(--line);
+  }
+  .weiter__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+  }
+  .naechstes-wrap {
+    padding-bottom: var(--section-gap);
+  }
+  .naechstes {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    min-height: 16rem;
+    background: var(--ink);
+    color: var(--on-ink);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    text-decoration: none;
+  }
+  .naechstes__text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-7);
+  }
+  .naechstes .eyebrow {
+    color: var(--accent-light);
+  }
+  .naechstes__titel {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.15;
+  }
+  .naechstes:hover .naechstes__titel {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .naechstes__stadt {
+    color: var(--on-ink-muted);
+  }
+  .naechstes__bild {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Tablet & Mobil */
+  @media (max-width: 1024px) {
+    .kennzahlen__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .kennzahlen__grid > div:nth-child(4) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .kennzahlen__grid > div:nth-child(n + 4) {
+      border-top: 1px solid var(--line);
+    }
+    .layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+    .toc {
+      position: static;
+    }
+    .toc nav {
+      display: none;
+    }
+    .toc__actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .weiter__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 700px) {
+    .hero__actions {
+      align-items: flex-start;
+    }
+    .kennzahlen__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .kennzahlen__grid > div {
+      border-left: 0 !important;
+      padding-left: 0 !important;
+      border-top: 1px solid var(--line);
+    }
+    .kennzahlen__grid > div:nth-child(-n + 2) {
+      border-top: 0;
+    }
+    .kennzahlen__grid > div:nth-child(even) {
+      padding-left: var(--space-4) !important;
+    }
+    .kennzahlen__grid > div:last-child {
+      grid-column: 1 / -1;
+      padding-left: 0 !important;
+    }
+    .zwischenbilder,
+    .eckdaten,
+    .lagezeile,
+    .weiter__grid,
+    .naechstes {
+      grid-template-columns: 1fr;
+    }
+    .naechstes__text {
+      padding: var(--space-6);
+    }
+    .naechstes__bild {
+      aspect-ratio: 16 / 9;
+      height: auto;
+    }
+    .hinweisbox {
+      flex-direction: column;
+      padding: var(--space-5);
+    }
+  }
+
+  /* Druckansicht = „Steckbrief als PDF“ */
+  @media print {
+    .hero {
+      min-height: 0;
+      background: none;
+      color: var(--ink);
+    }
+    .hero__bild {
+      position: static;
+      height: 9cm;
+      margin-bottom: 0.5cm;
+    }
+    .hero {
+      flex-direction: column;
+    }
+    .hero__shade,
+    .hero__actions,
+    .breadcrumb,
+    .toc,
+    .weiter,
+    .naechstes-wrap {
+      display: none !important;
+    }
+    .hero h1 {
+      text-shadow: none;
+    }
+    .hero__stadt {
+      color: var(--muted);
+    }
+    .layout {
+      display: block;
+      padding-block: 0.5cm;
+    }
+    .kapitel__abschnitt + .kapitel__abschnitt {
+      margin-top: 0.8cm;
+    }
+    .kapitel__abschnitt {
+      break-inside: avoid-page;
+    }
+    .hinweisbox {
+      background: none;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .hinweisbox p,
+    .hinweisbox li {
+      color: var(--ink);
+    }
+  }
+</style>

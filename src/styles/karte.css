@@ -1,0 +1,26 @@
+/* Leaflet-Anpassungen (global, da Leaflet die Elemente selbst erzeugt) */
+.leaflet-container {
+  font-family: var(--font-body);
+  background: var(--sand);
+}
+.kompass-marker__dot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--marker);
+  border: 3px solid var(--surface);
+  box-shadow: 0 1px 4px rgb(22 24 29 / 0.4);
+}
+.kompass-marker__dot.is-active {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--marker) 35%, transparent), 0 1px 4px rgb(22 24 29 / 0.4);
+}
+.leaflet-control-attribution {
+  font-size: 0.75rem;
+}
+.leaflet-control-attribution a {
+  color: var(--ink);
+}
+.leaflet-bar a {
+  color: var(--ink);
+}

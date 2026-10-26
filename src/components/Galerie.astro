@@ -1,0 +1,199 @@
+---
+/**
+ * Bildergalerie als Dialog: großes Bild, Vor/Zurück, Miniaturen.
+ * Öffnen über ein Element mit [data-galerie-open] (optional mit Bildindex).
+ */
+import { getImage } from 'astro:assets';
+import type { Projekt } from '../lib/projekte';
+
+interface Props {
+  bilder: Projekt['data']['bilder'];
+  titel: string;
+}
+const { bilder, titel } = Astro.props;
+const items = await Promise.all(
+  bilder.map(async (b) => ({
+    gross: await getImage({ src: b.pfad, width: Math.min(1600, b.pfad.width), format: 'webp' }),
+    klein: await getImage({ src: b.pfad, width: 160, format: 'webp' }),
+    alt: b.alt,
+    unterschrift: b.bildunterschrift,
+  })),
+);
+---
+
+{
+  items.length > 0 && (
+    <dialog class="galerie" data-galerie aria-label={`Bilder: ${titel}`}>
+      <div class="galerie__inner">
+        <div class="galerie__top">
+          <p class="galerie__count" aria-live="polite">
+            Bild <span data-galerie-pos>1</span> von {items.length}
+          </p>
+          <button type="button" class="galerie__close" data-galerie-close aria-label="Galerie schließen">
+            ×
+          </button>
+        </div>
+        <div class="galerie__stage">
+          <button type="button" class="galerie__nav galerie__nav--prev" data-galerie-prev aria-label="Vorheriges Bild">
+            ←
+          </button>
+          {items.map((it, i) => (
+            <figure class="galerie__slide" data-galerie-slide hidden={i !== 0}>
+              <img src={it.gross.src} alt={it.alt} loading="lazy" decoding="async" />
+              {it.unterschrift && <figcaption>{it.unterschrift}</figcaption>}
+            </figure>
+          ))}
+          <button type="button" class="galerie__nav galerie__nav--next" data-galerie-next aria-label="Nächstes Bild">
+            →
+          </button>
+        </div>
+        <ul class="galerie__thumbs">
+          {items.map((it, i) => (
+            <li>
+              <button type="button" data-galerie-thumb={i} aria-label={`Bild ${i + 1}: ${it.alt}`} aria-current={i === 0 ? 'true' : undefined}>
+                <img src={it.klein.src} alt="" loading="lazy" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </dialog>
+  )
+}
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-galerie]');
+  if (dialog) {
+    const slides = [...dialog.querySelectorAll<HTMLElement>('[data-galerie-slide]')];
+    const thumbs = [...dialog.querySelectorAll<HTMLButtonElement>('[data-galerie-thumb]')];
+    const pos = dialog.querySelector<HTMLElement>('[data-galerie-pos]')!;
+    let current = 0;
+    const show = (i: number) => {
+      current = (i + slides.length) % slides.length;
+      slides.forEach((s, n) => (s.hidden = n !== current));
+      thumbs.forEach((t, n) => (n === current ? t.setAttribute('aria-current', 'true') : t.removeAttribute('aria-current')));
+      pos.textContent = String(current + 1);
+    };
+    document.querySelectorAll<HTMLElement>('[data-galerie-open]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        show(Number(btn.dataset.galerieOpen || 0));
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector('[data-galerie-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-galerie-prev]')?.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('[data-galerie-next]')?.addEventListener('click', () => show(current + 1));
+    thumbs.forEach((t) => t.addEventListener('click', () => show(Number(t.dataset.galerieThumb))));
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+    // Klick auf den abgedunkelten Hintergrund schließt
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+</script>
+
+<style>
+  .galerie {
+    width: min(72rem, 100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  .galerie::backdrop {
+    background: rgb(22 24 29 / 0.85);
+  }
+  .galerie__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+  .galerie__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .galerie__count {
+    margin: 0;
+    color: var(--on-ink-muted);
+    font-size: var(--text-sm);
+  }
+  .galerie__close,
+  .galerie__nav {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    color: var(--on-ink);
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  .galerie__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .galerie__slide {
+    margin: 0;
+    text-align: center;
+  }
+  .galerie__slide img {
+    max-height: calc(100vh - 16rem);
+    width: auto;
+    margin-inline: auto;
+    border-radius: var(--radius-sm);
+  }
+  .galerie__slide figcaption {
+    margin-top: var(--space-2);
+    color: var(--on-ink-muted);
+    font-size: var(--text-sm);
+  }
+  .galerie__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+  .galerie__nav--prev {
+    left: var(--space-2);
+  }
+  .galerie__nav--next {
+    right: var(--space-2);
+  }
+  .galerie__thumbs {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    list-style: none;
+    margin: 0;
+    padding: var(--space-1);
+  }
+  .galerie__thumbs button {
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    opacity: 0.6;
+  }
+  .galerie__thumbs button[aria-current='true'] {
+    border-color: var(--accent-light);
+    opacity: 1;
+  }
+  .galerie__thumbs img {
+    width: 5rem;
+    height: 3.5rem;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+</style>

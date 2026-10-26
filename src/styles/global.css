@@ -232,3 +232,19 @@ button {
 .page-header {
   padding-block: var(--space-7) var(--space-6);
 }
+
+@media print {
+  .site-header,
+  .site-footer,
+  .skip-link {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    font-weight: 400;
+  }
+}

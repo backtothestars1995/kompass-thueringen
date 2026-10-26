@@ -41,3 +41,42 @@ export function zeitraumText(z: Projekt['data']['zeitraum']): string {
   if (!z.ende) return `seit ${z.beginn}`;
   return z.beginn === z.ende ? String(z.beginn) : `${z.beginn}–${z.ende}`;
 }
+
+const schnitt = (a: readonly string[], b: readonly string[]) => a.some((x) => b.includes(x));
+
+/**
+ * Ähnliche Projekte: gleiche Nutzungsart, gleicher Leerstandstyp, gleicher
+ * Projektzweck oder gleiche Einwohnerklasse. Je Grund möglichst ein anderes Projekt.
+ */
+export function aehnlicheProjekte(projekt: Projekt, alle: Projekt[], anzahl = 3): { projekt: Projekt; grund: string }[] {
+  const p = projekt.data;
+  const kriterien: { grund: string; passt: (q: Projekt['data']) => boolean }[] = [
+    { grund: 'Gleicher Projektzweck', passt: (q) => schnitt(p.projektzweck, q.projektzweck) },
+    { grund: 'Gleicher Leerstandstyp', passt: (q) => schnitt(p.kategorie, q.kategorie) },
+    { grund: 'Ähnliche Einwohnerzahl', passt: (q) => !!p.einwohnerzahl && p.einwohnerzahl === q.einwohnerzahl },
+    { grund: 'Gleiche Nutzungsart', passt: (q) => schnitt(p.nutzungsart, q.nutzungsart) },
+  ];
+  const andere = alle.filter((q) => q.id !== projekt.id);
+  // Punktzahl = Anzahl Übereinstimmungen; bei Gleichstand neuere zuerst (alle ist bereits sortiert)
+  const score = (q: Projekt) => kriterien.filter((k) => k.passt(q.data)).length;
+  const result: { projekt: Projekt; grund: string }[] = [];
+  const genutzt = new Set<string>();
+  for (const k of kriterien) {
+    if (result.length >= anzahl) break;
+    const kandidat = andere
+      .filter((q) => !genutzt.has(q.id) && k.passt(q.data))
+      .sort((a, b) => score(b) - score(a))[0];
+    if (kandidat) {
+      result.push({ projekt: kandidat, grund: k.grund });
+      genutzt.add(kandidat.id);
+    }
+  }
+  for (const q of andere.sort((a, b) => score(b) - score(a))) {
+    if (result.length >= anzahl) break;
+    if (!genutzt.has(q.id)) {
+      result.push({ projekt: q, grund: 'Weiteres Projekt' });
+      genutzt.add(q.id);
+    }
+  }
+  return result;
+}

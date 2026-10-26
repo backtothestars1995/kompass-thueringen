@@ -1,0 +1,90 @@
+---
+// Kleine Lagekarte mit Standort-Pin (Steckbrief)
+import '../styles/karte.css';
+import { url } from '../lib/url';
+
+interface Props {
+  koordinaten?: [number, number];
+  nutzungsart?: string;
+  titel: string;
+  slug: string;
+}
+const { koordinaten, nutzungsart, titel, slug } = Astro.props;
+---
+
+<div class="lage">
+  {
+    koordinaten ? (
+      <div
+        class="lage__map"
+        data-lagekarte
+        data-lat={koordinaten[0]}
+        data-lng={koordinaten[1]}
+        data-nutzungsart={nutzungsart}
+        role="region"
+        aria-label={`Lagekarte: ${titel}`}
+      />
+    ) : (
+      <div class="lage__map lage__map--leer">
+        <p class="placeholder">[Lage folgt – für dieses Projekt sind noch keine Koordinaten hinterlegt]</p>
+      </div>
+    )
+  }
+  <a class="btn btn--light btn--small lage__link" href={url(`entdecken/?ansicht=karte&projekt=${slug}`)}>
+    In der Projektkarte öffnen →
+  </a>
+</div>
+
+<script>
+  const els = document.querySelectorAll<HTMLElement>('[data-lagekarte]');
+  if (els.length) {
+    const io = new IntersectionObserver(async (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        io.unobserve(entry.target);
+        const el = entry.target as HTMLElement;
+        const { createMap, markerIcon, nutzungsFarbe, L } = await import('../scripts/karte');
+        const pos = L.latLng(Number(el.dataset.lat), Number(el.dataset.lng));
+        const map = createMap(el, { center: pos, zoom: 15 });
+        L.marker(pos, { icon: markerIcon(nutzungsFarbe(el.dataset.nutzungsart), true), keyboard: false }).addTo(map);
+      }
+    }, { rootMargin: '200px' });
+    els.forEach((el) => io.observe(el));
+  }
+</script>
+
+<style>
+  .lage {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--sand);
+  }
+  .lage__map {
+    height: 18rem;
+  }
+  .lage__map--leer {
+    display: grid;
+    place-items: center;
+    padding: var(--space-6);
+    text-align: center;
+  }
+  .lage__link {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-3);
+    z-index: 500;
+    box-shadow: var(--shadow-card);
+  }
+  .lage__map--leer + .lage__link {
+    position: static;
+    margin: 0 var(--space-3) var(--space-3) auto;
+    display: flex;
+    width: max-content;
+  }
+  @media print {
+    .lage__link {
+      display: none;
+    }
+  }
+</style>

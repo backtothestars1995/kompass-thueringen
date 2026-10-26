@@ -1,0 +1,216 @@
+---
+import { Image } from 'astro:assets';
+import NutzungBadge from './NutzungBadge.astro';
+import Ampel from './Ampel.astro';
+import { url } from '../lib/url';
+import { geschuetzt } from '../lib/text';
+import { zeitraumText, type Projekt } from '../lib/projekte';
+
+interface Props {
+  projekt: Projekt;
+  /** Zusatzzeile unter dem Titel, z. B. Grund für „Ähnliche Projekte“ */
+  hinweis?: string;
+  /** Meta-Zeile mit Jahr, Kosten und Aufwand */
+  meta?: boolean;
+  /** Checkbox „Vergleichen“ */
+  vergleichen?: boolean;
+  headingLevel?: 'h2' | 'h3';
+  loading?: 'lazy' | 'eager';
+}
+const { projekt, hinweis, meta = true, vergleichen = false, headingLevel = 'h3', loading = 'lazy' } = Astro.props;
+const p = projekt.data;
+const bild = p.bilder[0];
+const Heading = headingLevel;
+const href = url(`projekte/${projekt.id}/`);
+---
+
+<article class="pcard" data-slug={projekt.id}>
+  <div class="pcard__media">
+    {
+      bild ? (
+        <Image src={bild.pfad} alt="" widths={[400, 640, 800]} sizes="(max-width: 700px) 100vw, 400px" loading={loading} />
+      ) : (
+        <span class="pcard__noimg placeholder">[Bild folgt]</span>
+      )
+    }
+    {p.nutzungsart[0] && <span class="pcard__badge"><NutzungBadge nutzungsart={p.nutzungsart[0]} /></span>}
+    <button type="button" class="pcard__merken" data-merken={projekt.id} aria-pressed="false" aria-label={`${p.titel} merken`}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+  </div>
+  <div class="pcard__body">
+    <p class="pcard__ort">
+      {p.stadt}{p.einwohnerzahl && <> · {p.einwohnerzahl} EW</>}
+    </p>
+    <Heading class="pcard__title">
+      <a href={href} class="pcard__link">{p.titel}</a>
+    </Heading>
+    {hinweis && <p class="pcard__hinweis">{hinweis}</p>}
+    {
+      (meta || vergleichen) && (
+        <div class="pcard__foot">
+          {meta && (
+            <p class="pcard__meta">
+              <span>{zeitraumText(p.zeitraum)}</span>
+              {p.gesamtkosten && <span>{geschuetzt(p.gesamtkosten)}</span>}
+              {p.personeller_aufwand && <Ampel wert={p.personeller_aufwand} prefix="Aufwand" />}
+            </p>
+          )}
+          {vergleichen && (
+            <label class="pcard__vergleich">
+              <input type="checkbox" data-vergleich={projekt.id} />
+              Vergleichen<span class="visually-hidden">: {p.titel}</span>
+            </label>
+          )}
+        </div>
+      )
+    }
+  </div>
+</article>
+
+<script>
+  import { initProjektAktionen } from '../scripts/projekt-aktionen';
+  initProjektAktionen();
+</script>
+
+<style>
+  .pcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition), transform var(--transition);
+    height: 100%;
+  }
+  .pcard:hover,
+  .pcard.is-highlighted {
+    box-shadow: 0 0 0 2px var(--ink), var(--shadow-card);
+  }
+  .pcard__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--sand);
+  }
+  .pcard__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pcard__noimg {
+    display: grid;
+    place-items: center;
+    height: 100%;
+  }
+  .pcard__badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+  }
+  .pcard__merken {
+    position: absolute;
+    right: var(--space-3);
+    bottom: calc(-1 * var(--space-5));
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-card);
+  }
+  .pcard__merken svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+  }
+  .pcard__merken[aria-pressed='true'] {
+    color: var(--accent);
+  }
+  .pcard__merken[aria-pressed='true'] svg {
+    fill: currentColor;
+  }
+  .pcard__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--space-5) var(--space-5) var(--space-4);
+  }
+  .pcard__ort {
+    margin: 0 0 var(--space-1);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .pcard__title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+  }
+  .pcard__link {
+    text-decoration: none;
+  }
+  /* ganze Karte klickbar, Schalter bleiben bedienbar */
+  .pcard__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .pcard__link:focus-visible {
+    box-shadow: none;
+  }
+  .pcard:has(.pcard__link:focus-visible) {
+    box-shadow: var(--focus-ring);
+  }
+  .pcard__hinweis {
+    margin: var(--space-1) 0 0;
+    color: var(--accent);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .pcard__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    margin-top: auto;
+    padding-top: var(--space-4);
+  }
+  .pcard__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .pcard__meta > * + *::before {
+    content: '·';
+    margin-right: var(--space-3);
+  }
+  .pcard__vergleich {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pcard__vergleich input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--accent);
+  }
+</style>

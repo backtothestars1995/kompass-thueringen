@@ -1,0 +1,79 @@
+---
+// Ampel „Personeller Aufwand“ – Farbe immer zusammen mit Textlabel
+import { AUFWAND_FARBE, aufwandLabel, PERSONELLER_AUFWAND, type PersonellerAufwand } from '../lib/taxonomie';
+
+interface Props {
+  wert?: PersonellerAufwand;
+  /** gross = drei Leuchten (Kennzahlen-Band), klein = Punkt + Label */
+  size?: 'gross' | 'klein';
+  /** Text vor dem Wert, z. B. „Aufwand“ */
+  prefix?: string;
+}
+const { wert, size = 'klein', prefix } = Astro.props;
+---
+
+{
+  size === 'gross' ? (
+    <span class="ampel ampel--gross">
+      <span class="ampel__lights" aria-hidden="true">
+        {PERSONELLER_AUFWAND.map((stufe) => (
+          <span class:list={['ampel__light', { 'is-on': stufe === wert }]} style={`--light: ${AUFWAND_FARBE[stufe]}`} />
+        ))}
+      </span>
+      <span class="ampel__label">{wert ? aufwandLabel(wert) : <span class="placeholder">[keine Angabe]</span>}</span>
+    </span>
+  ) : (
+    <span class="ampel ampel--klein">
+      {wert && <span class="ampel__dot" style={`--light: ${AUFWAND_FARBE[wert]}`} aria-hidden="true" />}
+      <span>
+        {prefix && `${prefix} `}
+        {wert ? aufwandLabel(wert).toLowerCase() : <span class="placeholder">[keine Angabe]</span>}
+      </span>
+    </span>
+  )
+}
+
+<style>
+  .ampel {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .ampel__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--light);
+    flex: none;
+  }
+  .ampel__lights {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px;
+    border-radius: var(--radius-full);
+    background: var(--ink);
+  }
+  .ampel__light {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: var(--light);
+    opacity: 0.22;
+  }
+  .ampel__light.is-on {
+    opacity: 1;
+  }
+  .ampel--gross .ampel__label {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+  }
+  .ampel--gross .placeholder {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+</style>
