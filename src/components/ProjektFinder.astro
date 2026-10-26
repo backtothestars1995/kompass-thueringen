@@ -1,0 +1,275 @@
+---
+/**
+ * Projekt-Finder: drei Fragen → setzt die Filter von „Entdecken“.
+ * Tastaturbedienbar; nach jeder Antwort springt der Fokus zur nächsten Frage.
+ */
+import { FINDER_FRAGEN } from '../lib/projekt-finder';
+import { alsJson } from '../lib/filter-daten';
+import type { FilterProjekt } from '../lib/filter';
+
+interface Props {
+  daten: FilterProjekt[];
+}
+const { daten } = Astro.props;
+const n = FINDER_FRAGEN.length;
+---
+
+<section class="finder" aria-labelledby="finder-titel" data-finder>
+  <div class="finder__intro">
+    <span class="eyebrow">Projekt-Finder</span>
+    <h2 id="finder-titel" class="finder__titel">In drei Fragen zum passenden Beispiel.</h2>
+    <p>
+      Ohne Fachbegriffe: Beantworten Sie drei kurze Fragen – der KOMPASS zeigt Ihnen Projekte, die zu Ihrer Situation passen.
+    </p>
+    <div class="finder__progress" aria-hidden="true">
+      {FINDER_FRAGEN.map(() => <span data-finder-bar />)}
+    </div>
+    <p class="finder__schritt" data-finder-schritt>Frage 1 von {n}</p>
+  </div>
+
+  <div class="finder__fragen">
+    {
+      FINDER_FRAGEN.map((f, i) => (
+        <fieldset class="finder__frage" data-finder-frage={i} hidden={i !== 0}>
+          <legend class="finder__legend" tabindex="-1">
+            <span class="visually-hidden">
+              Frage {i + 1} von {n}:{' '}
+            </span>
+            {f.frage}
+          </legend>
+          <ul class="finder__antworten">
+            {f.antworten.map((a, j) => (
+              <li>
+                <button type="button" class="finder__antwort" data-antwort={j}>
+                  <span class="finder__nr" aria-hidden="true">
+                    {String(j + 1).padStart(2, '0')}
+                  </span>
+                  {a.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+          {i > 0 && (
+            <button type="button" class="finder__zurueck" data-finder-zurueck>
+              ← Zurück
+            </button>
+          )}
+        </fieldset>
+      ))
+    }
+
+    <div class="finder__ergebnis" data-finder-ergebnis hidden>
+      <h3 class="finder__legend" tabindex="-1" data-finder-ergebnis-titel></h3>
+      <p data-finder-ergebnis-text></p>
+      <div class="finder__aktionen">
+        <a class="btn btn--primary" href="" data-finder-link>Projekte anzeigen →</a>
+        <button type="button" class="btn btn--outline" data-finder-neu>Neu starten</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-finder-daten set:html={alsJson(daten)} />
+  <script type="application/json" data-finder-fragen set:html={alsJson(FINDER_FRAGEN)} />
+</section>
+
+<script>
+  import { entdeckenLink, leererZustand, passt, type FilterProjekt, type FilterZustand } from '../lib/filter';
+  import type { FinderFrage } from '../lib/projekt-finder';
+
+  const root = document.querySelector<HTMLElement>('[data-finder]');
+  if (root) {
+    const daten: FilterProjekt[] = JSON.parse(root.querySelector('[data-finder-daten]')!.textContent || '[]');
+    const fragen: FinderFrage[] = JSON.parse(root.querySelector('[data-finder-fragen]')!.textContent || '[]');
+    const frageEls = [...root.querySelectorAll<HTMLElement>('[data-finder-frage]')];
+    const ergebnis = root.querySelector<HTMLElement>('[data-finder-ergebnis]')!;
+    const bars = [...root.querySelectorAll<HTMLElement>('[data-finder-bar]')];
+    const schritt = root.querySelector<HTMLElement>('[data-finder-schritt]')!;
+    const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+    const antworten: (number | undefined)[] = [];
+
+    const zustand = (bis = fragen.length): FilterZustand => {
+      const z = leererZustand();
+      fragen.slice(0, bis).forEach((f, i) => {
+        const a = antworten[i];
+        if (a !== undefined) Object.assign(z, f.antworten[a].filter);
+      });
+      return z;
+    };
+    const treffer = (z: FilterZustand) => daten.filter((p) => passt(p, z)).length;
+
+    function zeige(i: number, fokus = true) {
+      frageEls.forEach((el, n) => (el.hidden = n !== i));
+      ergebnis.hidden = i < fragen.length;
+      bars.forEach((b, n) => b.classList.toggle('is-done', n <= Math.min(i, fragen.length - 1)));
+      schritt.textContent = i < fragen.length ? `Frage ${i + 1} von ${fragen.length}` : 'Ihr Ergebnis';
+      frageEls[i]?.querySelectorAll<HTMLButtonElement>('[data-antwort]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.antwort) === antworten[i]));
+      });
+      if (i >= fragen.length) zeigeErgebnis();
+      if (fokus) (i < fragen.length ? frageEls[i].querySelector<HTMLElement>('legend') : ergebnis.querySelector<HTMLElement>('h3'))?.focus();
+    }
+
+    function zeigeErgebnis() {
+      // Passt nichts zu allen Antworten, nacheinander die letzten Antworten lockern
+      let bis = fragen.length;
+      let z = zustand(bis);
+      let n = treffer(z);
+      while (n === 0 && bis > 0) {
+        bis -= 1;
+        z = zustand(bis);
+        n = treffer(z);
+      }
+      const gelockert = bis < fragen.length;
+      root!.querySelector('[data-finder-ergebnis-titel]')!.textContent =
+        n === 1 ? '1 passendes Projekt gefunden.' : `${n} passende Projekte gefunden.`;
+      root!.querySelector('[data-finder-ergebnis-text]')!.textContent = gelockert
+        ? 'Zu allen Antworten passt noch kein Projekt. Wir zeigen Ihnen Beispiele, die zu Ihren ersten Antworten passen.'
+        : 'Im Projektpool können Sie die Auswahl jederzeit weiter verfeinern.';
+      root!.querySelector<HTMLAnchorElement>('[data-finder-link]')!.href = entdeckenLink(base, z);
+    }
+
+    let aktuell = 0;
+    frageEls.forEach((el, i) => {
+      el.querySelectorAll<HTMLButtonElement>('[data-antwort]').forEach((b) =>
+        b.addEventListener('click', () => {
+          antworten[i] = Number(b.dataset.antwort);
+          antworten.length = i + 1;
+          aktuell = i + 1;
+          zeige(aktuell);
+        }),
+      );
+      el.querySelector('[data-finder-zurueck]')?.addEventListener('click', () => {
+        aktuell = i - 1;
+        zeige(aktuell);
+      });
+    });
+    root.querySelector('[data-finder-neu]')!.addEventListener('click', () => {
+      antworten.length = 0;
+      aktuell = 0;
+      zeige(0);
+    });
+    zeige(0, false);
+  }
+</script>
+
+<style>
+  .finder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: var(--space-7);
+    padding: clamp(1.5rem, 1rem + 3vw, 3.5rem);
+    background: var(--sand);
+    border-radius: var(--radius-xl);
+  }
+  .finder__titel {
+    font-size: var(--text-2xl);
+  }
+  .finder__intro p {
+    max-width: 32ch;
+  }
+  .finder__progress {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+  .finder__progress span {
+    width: 2.5rem;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: rgb(22 24 29 / 0.15);
+  }
+  .finder__progress span.is-done {
+    background: var(--accent);
+  }
+  .finder__schritt {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .finder__frage {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .finder__legend {
+    padding: 0;
+    margin-bottom: var(--space-5);
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-heading);
+  }
+  .finder__legend:focus {
+    outline: none;
+  }
+  .finder__antworten {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .finder__antwort {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: 6.5rem;
+    padding: var(--space-4) var(--space-5);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    text-align: left;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.3;
+    transition: border-color var(--transition);
+  }
+  .finder__antwort:hover {
+    border-color: var(--ink);
+  }
+  .finder__antwort[aria-pressed='true'] {
+    border-color: var(--accent);
+  }
+  .finder__nr {
+    color: var(--accent);
+    font-size: var(--text-sm);
+  }
+  .finder__zurueck {
+    margin-top: var(--space-4);
+    padding: var(--space-2) 0;
+    border: 0;
+    background: none;
+    font-weight: 600;
+  }
+  .finder__ergebnis p {
+    max-width: 50ch;
+  }
+  .finder__aktionen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  @media (max-width: 860px) {
+    .finder {
+      grid-template-columns: 1fr;
+      gap: var(--space-5);
+    }
+    .finder__progress {
+      margin-top: var(--space-3);
+    }
+  }
+  @media (max-width: 480px) {
+    .finder__antworten {
+      grid-template-columns: 1fr;
+    }
+    .finder__antwort {
+      min-height: 0;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+</style>

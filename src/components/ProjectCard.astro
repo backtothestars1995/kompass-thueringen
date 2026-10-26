@@ -54,8 +54,8 @@ const href = url(`projekte/${projekt.id}/`);
           {meta && (
             <p class="pcard__meta">
               <span>{zeitraumText(p.zeitraum)}</span>
-              {p.gesamtkosten && <span>{geschuetzt(p.gesamtkosten)}</span>}
-              {p.personeller_aufwand && <Ampel wert={p.personeller_aufwand} prefix="Aufwand" />}
+              {p.gesamtkosten && <> · <span>{geschuetzt(p.gesamtkosten)}</span></>}
+              {p.personeller_aufwand && <> · <Ampel wert={p.personeller_aufwand} prefix="Aufwand" /></>}
             </p>
           )}
           {vergleichen && (
@@ -186,17 +186,12 @@ const href = url(`projekte/${projekt.id}/`);
     padding-top: var(--space-4);
   }
   .pcard__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-1) var(--space-3);
     margin: 0;
     color: var(--muted);
     font-size: var(--text-sm);
   }
-  .pcard__meta > * + *::before {
-    content: '·';
-    margin-right: var(--space-3);
+  .pcard__meta > * {
+    white-space: nowrap;
   }
   .pcard__vergleich {
     position: relative;

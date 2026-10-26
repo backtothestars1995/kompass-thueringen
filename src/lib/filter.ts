@@ -6,6 +6,7 @@
  */
 import { slugify } from './slug';
 import {
+  EINWOHNERZAHL,
   GESAMTKOSTEN,
   KATEGORIE,
   LEERSTANDSDAUER,
@@ -77,6 +78,7 @@ export const SORTIERUNGEN = [
   { key: 'stadt', label: 'Stadt A–Z' },
   { key: 'kosten-auf', label: 'Kosten aufsteigend' },
   { key: 'kosten-ab', label: 'Kosten absteigend' },
+  { key: 'einwohner', label: 'Ähnliche Einwohnerzahl' },
 ] as const;
 export type Sortierung = (typeof SORTIERUNGEN)[number]['key'];
 
@@ -92,6 +94,8 @@ export interface FilterZustand {
   /** Kostenbereich als Indizes in GESAMTKOSTEN (einschließlich) */
   kosten: [number, number];
   sort: Sortierung;
+  /** Einwohnerklasse (Index in EINWOHNERZAHL) für die Sortierung „Ähnliche Einwohnerzahl“ */
+  ew: number | null;
   ansicht: Ansicht;
 }
 
@@ -107,6 +111,7 @@ export function leererZustand(): FilterZustand {
     foerderung: [],
     kosten: [0, KOSTEN_MAX],
     sort: 'neueste',
+    ew: null,
     ansicht: 'beides',
   };
 }
@@ -141,6 +146,8 @@ export function zustandAusUrl(params: URLSearchParams): FilterZustand {
   }
   const sort = params.get('sort');
   if (SORTIERUNGEN.some((s) => s.key === sort)) z.sort = sort as Sortierung;
+  const ew = Number(params.get('ew'));
+  if (params.has('ew') && Number.isInteger(ew) && ew >= 0 && ew < EINWOHNERZAHL.length) z.ew = ew;
   const ansicht = params.get('ansicht');
   if (ansicht === 'liste' || ansicht === 'karte') z.ansicht = ansicht;
   return z;
@@ -155,6 +162,7 @@ export function zustandZuParams(z: Partial<FilterZustand>): URLSearchParams {
   }
   if (z.kosten && (z.kosten[0] > 0 || z.kosten[1] < KOSTEN_MAX)) params.set('kosten', `${z.kosten[0]}-${z.kosten[1]}`);
   if (z.sort && z.sort !== 'neueste') params.set('sort', z.sort);
+  if (z.sort === 'einwohner' && z.ew !== null && z.ew !== undefined) params.set('ew', String(z.ew));
   if (z.ansicht && z.ansicht !== 'beides') params.set('ansicht', z.ansicht);
   return params;
 }
@@ -204,7 +212,7 @@ export function trefferJeOption(projekte: FilterProjekt[], z: FilterZustand, f: 
   return new Map(f.werte.map((w) => [w, basis.filter((p) => passtFacette(p, f.key, [w])).length]));
 }
 
-export function sortiere(projekte: FilterProjekt[], sort: Sortierung): FilterProjekt[] {
+export function sortiere(projekte: FilterProjekt[], sort: Sortierung, ew: number | null = null): FilterProjekt[] {
   const de = (a: string, b: string) => a.localeCompare(b, 'de');
   const kosten = (p: FilterProjekt) => (p.kosten < 0 ? Infinity : p.kosten);
   const list = [...projekte];
@@ -217,6 +225,14 @@ export function sortiere(projekte: FilterProjekt[], sort: Sortierung): FilterPro
       return list.sort((a, b) => kosten(a) - kosten(b) || b.datum - a.datum);
     case 'kosten-ab':
       return list.sort((a, b) => (kosten(b) === Infinity ? -1 : kosten(b)) - (kosten(a) === Infinity ? -1 : kosten(a)) || b.datum - a.datum);
+    case 'einwohner': {
+      // Nähe zur gewählten Einwohnerklasse, ohne Wahl: aufsteigend
+      const idx = (p: FilterProjekt) => {
+        const i = p.einwohnerzahl ? EINWOHNERZAHL.indexOf(p.einwohnerzahl as (typeof EINWOHNERZAHL)[number]) : -1;
+        return i < 0 ? Infinity : ew === null ? i : Math.abs(i - ew);
+      };
+      return list.sort((a, b) => idx(a) - idx(b) || b.datum - a.datum);
+    }
     default:
       return list.sort((a, b) => b.datum - a.datum || de(a.titel, b.titel));
   }

@@ -179,7 +179,7 @@ export function initEntdecken() {
       const b = kartenBounds;
       treffer = treffer.filter((p) => p.koordinaten && b.contains(p.koordinaten));
     }
-    const sortiert = sortiere(treffer, z.sort);
+    const sortiert = sortiere(treffer, z.sort, z.ew);
     const trefferSet = new Set(sortiert.map((p) => p.slug));
 
     // Liste: Reihenfolge, Sichtbarkeit, Seitenweise
@@ -334,8 +334,8 @@ export function initEntdecken() {
     if (!el) return;
     const key = el.dataset.reset!;
     if (key === 'alle') {
-      const { sort, ansicht } = z;
-      z = { ...leererZustand(), sort, ansicht };
+      const { sort, ansicht, ew } = z;
+      z = { ...leererZustand(), sort, ansicht, ew };
       kartenBounds = undefined;
       boundsCheckbox.checked = false;
     } else if (key === 'kosten') z.kosten = [0, KOSTEN_MAX];
