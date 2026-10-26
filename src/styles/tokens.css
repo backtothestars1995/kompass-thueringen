@@ -19,6 +19,7 @@
   --on-ink: #f6f4ef; /* Text auf dunklem Grund */
   --on-ink-muted: #b4b6bd; /* Sekundärtext auf dunklem Grund */
   --accent-hover: #a83816;
+  --accent-strong: #a33718; /* Akzent als Text auf Sand (Kontrast ≥ 4,5:1) */
 
   /* Nutzungsarten – Marker, Badges, Legende */
   --use-gewerbe: #2f5bea;

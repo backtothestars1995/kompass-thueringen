@@ -794,10 +794,20 @@ const jahr = new Date().getFullYear();
 
   @media (max-width: 1100px) {
     .schritt__label {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
     .schritt.is-aktuell .schritt__label {
-      display: inline;
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
     }
   }
   @media (max-width: 900px) {
