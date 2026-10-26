@@ -9,14 +9,15 @@ interface Props {
 const { tone = 'light', showRegion = true } = Astro.props;
 ---
 
-<a href={url()} class:list={['logo', `logo--${tone}`]} aria-label="KOMPASS Thüringen – zur Startseite">
+<a href={url()} class:list={['logo', `logo--${tone}`]}>
   <svg class="logo__icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
     <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"></circle>
     <path d="M16 5 L20 16 L12 16 Z" fill="var(--accent)"></path>
     <path d="M16 27 L20 16 L12 16 Z" fill="currentColor"></path>
   </svg>
   <span class="logo__word">KOMPASS</span>
-  {showRegion && <span class="logo__region">Thüringen</span>}
+  {showRegion ? <span class="logo__region"> Thüringen</span> : <span class="visually-hidden"> Thüringen</span>}
+  <span class="visually-hidden"> – zur Startseite</span>
 </a>
 
 <style>

@@ -49,6 +49,8 @@ h4 {
   line-height: 1.1;
   margin: 0 0 var(--space-4);
   text-wrap: balance;
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 h1 {
@@ -251,4 +253,33 @@ button {
     font-size: 0.8em;
     font-weight: 400;
   }
+}
+
+/* Fließtext aus Markdown (Leitfäden, Glossar, Seiten) */
+.prose {
+  max-width: 70ch;
+}
+.prose h2 {
+  font-size: var(--text-xl);
+  margin: var(--space-7) 0 var(--space-3);
+  scroll-margin-top: calc(var(--header-height) + var(--space-4));
+}
+.prose h3 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: var(--space-5) 0 var(--space-2);
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+  margin: 0 0 var(--space-4);
+}
+.prose li + li {
+  margin-top: var(--space-2);
+}
+.prose a {
+  color: var(--accent);
 }

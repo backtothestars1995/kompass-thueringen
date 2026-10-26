@@ -18,9 +18,11 @@ interface Props {
   footer?: 'full' | 'compact';
   /** Optional: Bild für Vorschauen in sozialen Netzwerken/Messengern */
   image?: string;
+  /** Eigene, reduzierte Kopfzeile (z. B. Assistent „Projekt einreichen“) über den Slot „kopf“ */
+  eigenerKopf?: boolean;
 }
 
-const { title, description, headerTone = 'light', footer = 'compact', image } = Astro.props;
+const { title, description, headerTone = 'light', footer = 'compact', image, eigenerKopf = false } = Astro.props;
 const fullTitle = title === 'Startseite' ? 'KOMPASS Thüringen – Projektpool für Thüringer Innenstädte' : `${title} · KOMPASS Thüringen`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = image ? new URL(image, Astro.site).href : undefined;
@@ -47,7 +49,7 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
   </head>
   <body>
     <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
-    <Header tone={headerTone} />
+    {eigenerKopf ? <slot name="kopf" /> : <Header tone={headerTone} />}
     <main id="inhalt" tabindex="-1">
       <slot />
     </main>

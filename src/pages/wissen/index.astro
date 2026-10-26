@@ -1,8 +1,571 @@
 ---
+import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageStub from '../../components/PageStub.astro';
+import { getGlossar, istLeer, PLATZHALTER_ERLAEUTERUNG } from '../../lib/glossar';
+import { getLeitfaeden, leitfadenMeta } from '../../lib/leitfaeden';
+import { getProjekte } from '../../lib/projekte';
+import { entdeckenLink, type ListenFacette } from '../../lib/filter';
+import { GLOSSAR_KATEGORIE } from '../../lib/taxonomie';
+import { url } from '../../lib/url';
+
+const base = url();
+const leitfaeden = await getLeitfaeden();
+const glossar = await getGlossar();
+const projekte = await getProjekte();
+
+// Projekte zu einem Begriff: Filterlink, wo Entdecken die Facette kennt, sonst Projektliste
+const facette: Partial<Record<string, ListenFacette>> = {
+  Leerstandstyp: 'kategorie',
+  Nutzungsart: 'nutzungsart',
+  Projektzweck: 'projektzweck',
+};
+const felder = ['kategorie', 'nutzungsart', 'projektzweck', 'planungsinstrumente_informell', 'rechtliche_rahmenbedingungen'] as const;
+
+const tabs: { key: string; label: string }[] = [
+  { key: 'alle', label: 'Alle' },
+  { key: 'Leerstandstyp', label: 'Leerstandstypen' },
+  { key: 'Nutzungsart', label: 'Nutzungsarten' },
+  { key: 'Projektzweck', label: 'Projektzwecke' },
+  { key: 'Planung & Recht', label: 'Planung & Recht' },
+  { key: 'Projektdaten', label: 'Projektdaten' },
+];
+// Sicherstellen, dass jede Glossar-Kategorie einen Reiter hat
+for (const k of GLOSSAR_KATEGORIE) if (!tabs.some((t) => t.key === k)) tabs.push({ key: k, label: k });
+
+const buchstabe = (begriff: string) =>
+  begriff.charAt(0).toUpperCase().replace('Ä', 'A').replace('Ö', 'O').replace('Ü', 'U');
+
+const eintraege = await Promise.all(
+  glossar.map(async (g) => {
+    const passende = projekte.filter((p) => felder.some((f) => (p.data[f] as readonly string[]).includes(g.data.begriff)));
+    const f = facette[g.data.kategorie];
+    return {
+      g,
+      Content: istLeer(g) ? null : (await render(g)).Content,
+      buchstabe: buchstabe(g.data.begriff),
+      passende,
+      link: f ? entdeckenLink(base, { [f]: [g.data.begriff] }) : undefined,
+    };
+  }),
+);
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const vorhanden = new Set(eintraege.map((e) => e.buchstabe));
+const leitfadenTon = ['dunkel', 'akzent', 'sand'];
+
+// Hintergrund-Links (von der bisherigen Seite „Die Idee“)
+const hintergrund = [
+  {
+    label: 'AG Leerstandsbewältigung',
+    href: 'https://sre.leg-thueringen.de/thueringer-aktionsbuendnis-innenstaedte-mit-zukunft/arbeitsgruppe-leerstandsbewaeltigung/',
+  },
+  { label: 'Stadtentwicklung Thüringen', href: 'https://stadtentwicklung-thueringen.de/' },
+  {
+    label: 'Handelsstudie „Wandel 2030“',
+    href: 'https://wirtschaft.thueringen.de/fileadmin/user_upload/Publikationen/Der_stationaere_Einzelhandel_in_Thueringen_bis_2030.pdf',
+  },
+];
 ---
 
-<BaseLayout title="Wissen" description="Praxis-Leitfäden für Kommunen und das Leerstands-ABC: Fachbegriffe rund um Leerstand verständlich erklärt.">
-  <PageStub eyebrow="Wissen" title="Wissen" />
+<BaseLayout
+  title="Wissen"
+  description="Praxis-Leitfäden für Kommunen und das Leerstands-ABC: Fachbegriffe rund um Leerstand verständlich erklärt."
+>
+  <section class="container kopf">
+    <div>
+      <span class="eyebrow">Wissen</span>
+      <h1>Verstehen, was Leerstand bewegt.</h1>
+      <p class="lead">Praxis-Leitfäden für Kommunen und ein Leerstands-ABC, das Fachbegriffe verständlich erklärt.</p>
+    </div>
+    <div class="suche">
+      <label for="wissen-suche" class="visually-hidden">Begriff oder Leitfaden suchen</label>
+      <svg class="suche__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+      <input type="search" id="wissen-suche" placeholder="Begriff oder Leitfaden suchen …" autocomplete="off" data-wissen-suche />
+    </div>
+  </section>
+
+  <!-- Praxis-Leitfäden -->
+  <section class="container section-sm" aria-labelledby="leitfaeden-titel" id="leitfaeden">
+    <h2 id="leitfaeden-titel" class="abschnitt-titel">Praxis-Leitfäden</h2>
+    <ul class="leitfaeden">
+      {
+        leitfaeden.map((l, i) => (
+          <li class="leitfaden" data-suchtext={`${l.data.titel} ${l.data.kurztitel ?? ''}`.toLowerCase()}>
+            <div class:list={['leitfaden__karte', `leitfaden__karte--${leitfadenTon[i % 3]}`]}>
+              <span class="leitfaden__nr">Leitfaden {String(i + 1).padStart(2, '0')}</span>
+              <h3 class="leitfaden__titel">{l.data.titel}</h3>
+              <p class="leitfaden__meta">{leitfadenMeta(l)}</p>
+            </div>
+            <div class="leitfaden__aktionen">
+              <a class="btn btn--dark btn--small" href={url(`wissen/leitfaeden/${l.id}/`)}>
+                Online lesen<span class="visually-hidden">: {l.data.titel}</span>
+              </a>
+              {l.data.pdf ? (
+                <a class="btn btn--outline btn--small" href={url(l.data.pdf.replace(/^\//, ''))} download>
+                  PDF herunterladen<span class="visually-hidden">: {l.data.titel}</span>
+                </a>
+              ) : (
+                <span class="placeholder">[PDF folgt]</span>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Leerstands-ABC -->
+  <section class="container section-sm" aria-labelledby="glossar-titel" id="glossar">
+    <div class="glossar">
+      <span class="eyebrow">Glossar</span>
+      <h2 id="glossar-titel" class="abschnitt-titel">Das Leerstands-ABC</h2>
+
+      <div class="glossar__tabs" role="group" aria-label="Kategorie">
+        {
+          tabs.map((t, i) => (
+            <button type="button" class="chip" data-kategorie={t.key} aria-pressed={i === 0 ? 'true' : 'false'}>
+              {t.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="glossar__az" role="group" aria-label="Anfangsbuchstabe">
+        {
+          alphabet.map((b) =>
+            vorhanden.has(b) ? (
+              <button type="button" class="az" data-buchstabe={b} aria-pressed="false">
+                {b}
+              </button>
+            ) : (
+              <span class="az az--leer" aria-hidden="true">
+                {b}
+              </span>
+            ),
+          )
+        }
+      </div>
+
+      <p class="glossar__status" role="status" aria-live="polite" data-glossar-status></p>
+
+      <ul class="glossar__liste">
+        {
+          eintraege.map(({ g, Content, buchstabe, passende, link }) => (
+            <li
+              class="begriff"
+              id={`begriff-${g.id}`}
+              data-eintrag
+              data-kategorie={g.data.kategorie}
+              data-buchstabe={buchstabe}
+              data-suchtext={g.data.begriff.toLowerCase()}
+            >
+              <div class="begriff__kopf">
+                <h3 class="begriff__titel">{g.data.begriff}</h3>
+                <span class="begriff__kat">{g.data.kategorie}</span>
+              </div>
+              <div class="begriff__text">{Content ? <Content /> : <p class="placeholder">{PLATZHALTER_ERLAEUTERUNG}</p>}</div>
+              {g.data.kategorie !== 'Projektdaten' &&
+                (passende.length === 0 ? (
+                  <p class="begriff__projekte begriff__projekte--leer">Noch keine Projekte zu diesem Begriff</p>
+                ) : link ? (
+                  <a class="link-arrow begriff__projekte" href={link}>
+                    → {passende.length} {passende.length === 1 ? 'Projekt' : 'Projekte'} zu diesem Begriff
+                  </a>
+                ) : (
+                  <details class="begriff__details">
+                    <summary class="link-arrow begriff__projekte">
+                      → {passende.length} {passende.length === 1 ? 'Projekt' : 'Projekte'} zu diesem Begriff
+                    </summary>
+                    <ul>
+                      {passende.map((p) => (
+                        <li>
+                          <a href={url(`projekte/${p.id}/`)}>
+                            {p.data.stadt}: {p.data.titel}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ))}
+            </li>
+          ))
+        }
+      </ul>
+      <p class="glossar__leer" data-glossar-leer hidden>Kein Begriff gefunden.</p>
+    </div>
+  </section>
+
+  <!-- Hintergrund -->
+  <section class="container section-sm" aria-labelledby="hintergrund-titel">
+    <div class="hintergrund">
+      <div>
+        <span class="eyebrow">Hintergrund</span>
+        <h2 id="hintergrund-titel" class="hintergrund__titel">Warum es den KOMPASS gibt – und wer dahintersteht.</h2>
+        <a class="btn btn--light" href={url('ueber/')}>Die Idee lesen →</a>
+      </div>
+      <ul class="hintergrund__links">
+        {
+          hintergrund.map((h) => (
+            <li>
+              <a href={h.href} target="_blank" rel="noopener">
+                {h.label}
+                <span aria-hidden="true">↗</span>
+                <span class="visually-hidden"> (externer Link, öffnet in neuem Fenster)</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  // Glossar: Kategorie, Anfangsbuchstabe und Suche kombiniert
+  const eintraege = [...document.querySelectorAll<HTMLElement>('[data-eintrag]')];
+  const leitfaeden = [...document.querySelectorAll<HTMLElement>('.leitfaden[data-suchtext]')];
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-kategorie]:is(button)')];
+  const letters = [...document.querySelectorAll<HTMLButtonElement>('button[data-buchstabe]')];
+  const suche = document.querySelector<HTMLInputElement>('[data-wissen-suche]')!;
+  const status = document.querySelector<HTMLElement>('[data-glossar-status]')!;
+  let kategorie = 'alle';
+  let buchstabe = '';
+
+  function render() {
+    const q = suche.value.trim().toLowerCase();
+    let n = 0;
+    for (const e of eintraege) {
+      const sichtbar =
+        (kategorie === 'alle' || e.dataset.kategorie === kategorie) &&
+        (!buchstabe || e.dataset.buchstabe === buchstabe) &&
+        (!q || e.dataset.suchtext!.includes(q));
+      e.hidden = !sichtbar;
+      if (sichtbar) n++;
+    }
+    for (const l of leitfaeden) l.hidden = !!q && !l.dataset.suchtext!.includes(q);
+    tabs.forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.kategorie === kategorie)));
+    letters.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.buchstabe === buchstabe)));
+    status.textContent = `${n} ${n === 1 ? 'Begriff' : 'Begriffe'}`;
+    document.querySelector<HTMLElement>('[data-glossar-leer]')!.hidden = n > 0;
+  }
+
+  tabs.forEach((t) =>
+    t.addEventListener('click', () => {
+      kategorie = t.dataset.kategorie!;
+      render();
+    }),
+  );
+  letters.forEach((b) =>
+    b.addEventListener('click', () => {
+      buchstabe = buchstabe === b.dataset.buchstabe ? '' : b.dataset.buchstabe!;
+      render();
+    }),
+  );
+  suche.addEventListener('input', render);
+
+  // Sprung auf einen Begriff (#begriff-…) zeigt ihn auch bei aktiver Auswahl
+  if (location.hash.startsWith('#begriff-')) {
+    document.querySelector(location.hash)?.classList.add('is-ziel');
+  }
+  render();
+</script>
+
+<style>
+  .kopf {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-6);
+    padding-block: var(--space-7) var(--space-6);
+  }
+  .kopf h1 {
+    font-size: var(--text-3xl);
+    max-width: 16ch;
+  }
+  .kopf .lead {
+    margin-bottom: 0;
+  }
+  .suche {
+    position: relative;
+  }
+  .suche__icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    width: 1.1rem;
+    height: 1.1rem;
+    transform: translateY(-50%);
+    color: var(--muted);
+  }
+  .suche input {
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-4) var(--space-2) 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+  }
+  .suche input::placeholder {
+    color: var(--muted);
+  }
+  .section-sm {
+    padding-block: var(--space-6);
+  }
+  .abschnitt-titel {
+    font-size: var(--text-2xl);
+  }
+
+  /* Leitfäden */
+  .leitfaeden {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .leitfaden__karte {
+    display: flex;
+    flex-direction: column;
+    min-height: 17rem;
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    border-radius: var(--radius-xl);
+  }
+  .leitfaden__karte--dunkel {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  .leitfaden__karte--akzent {
+    background: var(--accent);
+    color: var(--surface);
+  }
+  .leitfaden__karte--sand {
+    background: var(--sand);
+  }
+  .leitfaden__nr {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent-light);
+  }
+  .leitfaden__karte--akzent .leitfaden__nr {
+    color: var(--surface);
+  }
+  .leitfaden__karte--sand .leitfaden__nr {
+    color: var(--accent-strong);
+  }
+  .leitfaden__titel {
+    margin: auto 0 var(--space-4);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .leitfaden__meta {
+    margin: 0;
+    font-size: var(--text-xs);
+  }
+  .leitfaden__aktionen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  /* Glossar */
+  .glossar {
+    padding: clamp(1.25rem, 1rem + 2.5vw, 3rem);
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+  }
+  .glossar__tabs,
+  .glossar__az {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .glossar__az {
+    gap: 0.3rem;
+  }
+  .chip {
+    min-height: 2.5rem;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
+  }
+  .az {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 1 0 2rem;
+    max-width: 2.6rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    color: var(--on-ink);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .az[aria-pressed='true'] {
+    background: var(--accent);
+  }
+  .az--leer {
+    background: var(--paper);
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .glossar__status {
+    margin: 0 0 var(--space-3);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .glossar__liste {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .begriff {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+  .begriff:target,
+  .begriff.is-ziel {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .begriff__kopf {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+  .begriff__titel {
+    min-width: 0;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  .begriff__kat {
+    flex: none;
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-full);
+    background: var(--paper);
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  .begriff__text {
+    flex: 1;
+    font-size: var(--text-sm);
+  }
+  .begriff__text :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  .begriff__projekte {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+  }
+  .begriff__projekte--leer {
+    color: var(--muted);
+    margin-bottom: 0;
+  }
+  .begriff__details summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .begriff__details summary::-webkit-details-marker {
+    display: none;
+  }
+  .begriff__details ul {
+    margin: var(--space-2) 0 0;
+    padding-left: 1.2em;
+    font-size: var(--text-sm);
+  }
+  .glossar__leer {
+    margin-top: var(--space-4);
+    color: var(--muted);
+  }
+
+  /* Hintergrund */
+  .hintergrund {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: center;
+    padding: clamp(1.5rem, 1rem + 3vw, 3.5rem);
+    background: var(--ink);
+    color: var(--on-ink);
+    border-radius: var(--radius-xl);
+  }
+  .hintergrund .eyebrow {
+    color: var(--accent-light);
+  }
+  .hintergrund__titel {
+    font-size: var(--text-2xl);
+    max-width: 22ch;
+    margin-bottom: var(--space-5);
+  }
+  .hintergrund__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #3a3e48;
+  }
+  .hintergrund__links li {
+    border-bottom: 1px solid #3a3e48;
+  }
+  .hintergrund__links a {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-4) 0;
+    color: var(--on-ink);
+    text-decoration: none;
+  }
+  .hintergrund__links a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 900px) {
+    .kopf,
+    .hintergrund {
+      grid-template-columns: 1fr;
+    }
+    .leitfaeden {
+      grid-template-columns: 1fr;
+    }
+    .leitfaden__karte {
+      min-height: 12rem;
+    }
+    .glossar__liste {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .begriff__kopf {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+  }
+</style>

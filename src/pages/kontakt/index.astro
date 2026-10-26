@@ -1,8 +1,76 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageStub from '../../components/PageStub.astro';
+import { KONTAKT_EMAIL } from '../../lib/kontakt';
+import { url } from '../../lib/url';
 ---
 
-<BaseLayout title="Kontakt" description="So erreichen Sie das Team des KOMPASS Thüringen.">
-  <PageStub eyebrow="Kontakt" title="Kontakt" />
+<BaseLayout title="Kontakt" description="So erreichen Sie die Redaktion des KOMPASS Thüringen – für Fragen, Anregungen und neue Projekte.">
+  <div class="container kontakt">
+    <span class="eyebrow">Kontakt</span>
+    <h1>Fragen, Anregungen oder ein eigenes Projekt?</h1>
+    <p class="lead">Schreiben Sie der Redaktion des KOMPASS Thüringen.</p>
+
+    <div class="kontakt__grid">
+      <section class="karte" aria-labelledby="mail-titel">
+        <h2 id="mail-titel" class="karte__titel">Per E-Mail</h2>
+        <p>Ihr E-Mail-Programm öffnet sich mit einer neuen Nachricht an die Redaktion.</p>
+        {
+          KONTAKT_EMAIL ? (
+            <a class="btn btn--primary" href={`mailto:${KONTAKT_EMAIL}?subject=${encodeURIComponent('Anfrage über den KOMPASS Thüringen')}`}>
+              E-Mail schreiben
+            </a>
+          ) : (
+            <p class="placeholder">[E-Mail-Adresse der Redaktion folgt]</p>
+          )
+        }
+        <p class="karte__adresse">
+          <span class="placeholder">[Institution, Adresse]</span>
+        </p>
+      </section>
+
+      <section class="karte karte--sand" aria-labelledby="projekt-titel">
+        <h2 id="projekt-titel" class="karte__titel">Projekt vorschlagen</h2>
+        <p>
+          Sie kennen ein gelungenes Beispiel für die Nachnutzung von Leerstand? Der Assistent führt Sie in sechs Schritten durch alle
+          Angaben.
+        </p>
+        <a class="btn btn--dark" href={url('einreichen/')}>Projekt einreichen</a>
+      </section>
+    </div>
+  </div>
 </BaseLayout>
+
+<style>
+  .kontakt {
+    padding-block: var(--space-7) var(--section-gap);
+  }
+  .kontakt h1 {
+    font-size: var(--text-3xl);
+    max-width: 20ch;
+  }
+  .kontakt__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+  .karte {
+    padding: var(--space-6);
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+  }
+  .karte--sand {
+    background: var(--sand);
+  }
+  .karte__titel {
+    font-size: var(--text-xl);
+  }
+  .karte__adresse {
+    margin: var(--space-5) 0 0;
+  }
+  @media (max-width: 760px) {
+    .kontakt__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

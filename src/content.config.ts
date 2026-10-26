@@ -164,4 +164,14 @@ const leitfaeden = defineCollection({
   }),
 });
 
-export const collections = { projekte, glossar, leitfaeden };
+// Redaktionelle Seiten (Über KOMPASS, Rechtliches)
+const seiten = defineCollection({
+  loader: glob({ pattern: ['*.md', '!_*.md'], base: './src/content/seiten' }),
+  schema: z.object({
+    titel: pflichtText('titel'),
+    /** Herkunft des Textes, z. B. Adresse der bisherigen Seite */
+    quelle: optional(z.string().trim()),
+  }),
+});
+
+export const collections = { projekte, glossar, leitfaeden, seiten };

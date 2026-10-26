@@ -79,6 +79,6 @@ Datei: `src/content/projekte/verwaltungssitz-creuzburg.md` · Quelle: https://ww
 ## Weitere Inhalte der Redaktion
 
 - Glossar: Erläuterungstexte für alle 37 Begriffe in `src/content/glossar/` (Grundlage „Kategorisierung_Typen_Leerstand“)
-- Leitfäden: Online-Fassung, PDF, Seitenzahl und Lesezeit in `src/content/leitfaeden/`
+- Leitfäden: Online-Fassung, PDF und Seitenzahl aller 3 Leitfäden von der Live-Seite übernommen. Die Lesezeit wird aus der Textlänge geschätzt (ca. 200 Wörter/Minute); eine redaktionelle Angabe (`lesezeit_minuten`) hat Vorrang.
 - Partnerlogos und Anzahl der Partner des Aktionsbündnisses
 - Texte für „Über KOMPASS“, Kontaktangaben, Impressum, Datenschutz, Barrierefreiheitserklärung

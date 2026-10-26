@@ -20,6 +20,7 @@
 }
 .leaflet-control-attribution a {
   color: var(--ink);
+  text-decoration: underline;
 }
 .leaflet-bar a {
   color: var(--ink);

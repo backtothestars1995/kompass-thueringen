@@ -1,8 +1,192 @@
 ---
+import { getEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageStub from '../../components/PageStub.astro';
+import { url } from '../../lib/url';
+
+const idee = await getEntry('seiten', 'idee');
+if (!idee) throw new Error('Seite „idee“ fehlt in src/content/seiten/.');
+const { Content } = await render(idee);
+
+// Weiterführende Links (von der bisherigen Seite „Die Idee“)
+const links = [
+  { titel: 'Entwicklung Thüringer Städte', label: 'stadtentwicklung-thueringen.de', href: 'https://stadtentwicklung-thueringen.de/' },
+  {
+    titel: 'Aktuelle Handelsstudie „Wandel 2030“',
+    label: 'Thüringer Wirtschaftsministerium (PDF)',
+    href: 'https://wirtschaft.thueringen.de/fileadmin/user_upload/Publikationen/Der_stationaere_Einzelhandel_in_Thueringen_bis_2030.pdf',
+  },
+];
+const agLink = 'https://sre.leg-thueringen.de/thueringer-aktionsbuendnis-innenstaedte-mit-zukunft/arbeitsgruppe-leerstandsbewaeltigung/';
 ---
 
-<BaseLayout title="Über KOMPASS" description="Idee und Hintergrund des KOMPASS Thüringen – ein Projekt des Aktionsbündnisses „Innenstädte mit Zukunft“.">
-  <PageStub eyebrow="Über KOMPASS" title="Über KOMPASS" />
+<BaseLayout
+  title="Über KOMPASS"
+  description="Idee und Hintergrund des KOMPASS Thüringen – ein Projekt des Thüringer Aktionsbündnisses „Innenstädte mit Zukunft“, entwickelt von der AG Leerstandsbewältigung."
+>
+  <div class="container ueber">
+    <header class="ueber__kopf">
+      <span class="eyebrow">Über KOMPASS</span>
+      <h1>Warum es den KOMPASS gibt – und wer dahintersteht.</h1>
+    </header>
+
+    <div class="ueber__layout">
+      <section class="prose" aria-labelledby="idee-titel">
+        <h2 id="idee-titel">{idee.data.titel}</h2>
+        <Content />
+      </section>
+
+      <aside class="ueber__seite" aria-label="Weiterführende Informationen">
+        <div class="ag">
+          <span class="eyebrow">Arbeitsgruppe</span>
+          <h2 class="ag__titel">AG Leerstandsbewältigung</h2>
+          <p>
+            Der KOMPASS ist ein Projekt des Thüringer Aktionsbündnisses „Innenstädte mit Zukunft“. Entwickelt wurde er von der
+            Arbeitsgruppe „Leerstandsbewältigung“, organisiert durch die LEG Thüringen.
+          </p>
+          <a class="btn btn--light" href={agLink} target="_blank" rel="noopener">
+            Zur Arbeitsgruppe ↗<span class="visually-hidden"> (externer Link, öffnet in neuem Fenster)</span>
+          </a>
+        </div>
+        <ul class="links">
+          {
+            links.map((l) => (
+              <li>
+                <h3 class="links__titel">{l.titel}</h3>
+                <a href={l.href} target="_blank" rel="noopener" class="link-arrow">
+                  {l.label} ↗<span class="visually-hidden"> (externer Link, öffnet in neuem Fenster)</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </aside>
+    </div>
+
+    <section class="partner" aria-labelledby="partner-titel">
+      <h2 id="partner-titel" class="partner__titel">Partner des Aktionsbündnisses</h2>
+      <p class="partner__text">
+        Der KOMPASS wird getragen von <span class="placeholder">[n]</span> Partnern aus Land, Kammern und Verbänden.
+      </p>
+      <ul class="partner__logos">
+        {
+          Array.from({ length: 8 }, (_, i) => (
+            <li>
+              <span class="placeholder">[Logo {i + 1}]</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="cta" aria-label="Mitmachen">
+      <div>
+        <h2 class="cta__titel">Ihr Projekt gehört in den KOMPASS?</h2>
+        <p>Teilen Sie Ihre Erfahrungen mit anderen Kommunen in Thüringen.</p>
+      </div>
+      <div class="cta__aktionen">
+        <a class="btn btn--primary" href={url('einreichen/')}>Projekt einreichen</a>
+        <a class="btn btn--outline" href={url('entdecken/')}>Projekte entdecken</a>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  .ueber {
+    padding-block: var(--space-7) var(--section-gap);
+  }
+  .ueber__kopf h1 {
+    font-size: var(--text-3xl);
+    max-width: 22ch;
+  }
+  .ueber__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--space-8);
+    margin-top: var(--space-6);
+  }
+  .ueber__layout .prose h2 {
+    margin-top: 0;
+    font-size: var(--text-2xl);
+  }
+  .ag {
+    padding: var(--space-6);
+    background: var(--ink);
+    color: var(--on-ink);
+    border-radius: var(--radius-xl);
+  }
+  .ag .eyebrow {
+    color: var(--accent-light);
+  }
+  .ag__titel {
+    font-size: var(--text-xl);
+  }
+  .ag p {
+    color: var(--on-ink-muted);
+  }
+  .links {
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+  }
+  .links li {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .links__titel {
+    margin: 0 0 var(--space-1);
+    font-size: var(--text-base);
+    font-weight: 700;
+  }
+  .partner {
+    margin-top: var(--space-8);
+  }
+  .partner__titel {
+    font-size: var(--text-2xl);
+  }
+  .partner__logos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+  }
+  .partner__logos li {
+    display: grid;
+    place-items: center;
+    height: 5rem;
+    border-radius: var(--radius-md);
+    background: var(--sand);
+    font-size: var(--text-sm);
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-top: var(--space-8);
+    padding: var(--space-6);
+    background: var(--sand);
+    border-radius: var(--radius-xl);
+  }
+  .cta__titel {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-1);
+  }
+  .cta p {
+    margin: 0;
+  }
+  .cta__aktionen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  @media (max-width: 900px) {
+    .ueber__layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+  }
+</style>

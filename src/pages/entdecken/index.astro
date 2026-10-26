@@ -1,35 +1,17 @@
 ---
-import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import FacetFieldset from '../../components/FacetFieldset.astro';
 import KostenFilter from '../../components/KostenFilter.astro';
 import { getProjekte } from '../../lib/projekte';
-import { FACETTEN, SORTIERUNGEN, type FilterProjekt } from '../../lib/filter';
-import { GESAMTKOSTEN, NUTZUNGSART, NUTZUNGSART_FARBE } from '../../lib/taxonomie';
+import { FACETTEN, SORTIERUNGEN } from '../../lib/filter';
+import { alsJson, filterDaten } from '../../lib/filter-daten';
+import { NUTZUNGSART, NUTZUNGSART_FARBE } from '../../lib/taxonomie';
 import '../../styles/karte.css';
 
 const projekte = await getProjekte();
 
-// Schlanke Daten für Filter und Karte im Browser
-const daten: FilterProjekt[] = await Promise.all(
-  projekte.map(async (p) => ({
-    slug: p.id,
-    titel: p.data.titel,
-    stadt: p.data.stadt,
-    projekttraeger: p.data.projekttraeger,
-    kategorie: [...p.data.kategorie],
-    nutzungsart: [...p.data.nutzungsart],
-    projektzweck: [...p.data.projektzweck],
-    leerstandsdauer: [...p.data.leerstandsdauer],
-    kosten: p.data.gesamtkosten ? GESAMTKOSTEN.indexOf(p.data.gesamtkosten) : -1,
-    foerderung: p.data.foerderung === undefined ? null : p.data.foerderung ? 'ja' : 'nein',
-    koordinaten: p.data.koordinaten ?? null,
-    datum: p.data.veroeffentlicht_am?.getTime() ?? 0,
-    bild: p.data.bilder[0] ? (await getImage({ src: p.data.bilder[0].pfad, width: 480, format: 'webp' })).src : null,
-    einwohnerzahl: p.data.einwohnerzahl ?? null,
-  })),
-);
+const daten = await filterDaten(projekte);
 
 const pills = [
   ...FACETTEN.slice(0, 4).map((f) => ({ key: f.key as string, label: f.label, facette: f })),
@@ -199,7 +181,7 @@ const pills = [
       </div>
     </dialog>
 
-    <script type="application/json" data-projekte set:html={JSON.stringify(daten).replace(/</g, '\\u003c')} />
+    <script type="application/json" data-projekte set:html={alsJson(daten)} />
   </div>
 </BaseLayout>
 
