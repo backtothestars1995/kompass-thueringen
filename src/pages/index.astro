@@ -1,6 +1,5 @@
 ---
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroKarte from '../components/HeroKarte.astro';
 import ProjektFinder from '../components/ProjektFinder.astro';
@@ -13,11 +12,12 @@ import { filterDaten } from '../lib/filter-daten';
 import { entdeckenLink, type ListenFacette } from '../lib/filter';
 import { EINWOHNERZAHL } from '../lib/taxonomie';
 import { url } from '../lib/url';
+import { getLeitfaeden } from '../lib/leitfaeden';
 
 const base = url();
 const projekte = await getProjekte();
 const daten = await filterDaten(projekte);
-const leitfaeden = (await getCollection('leitfaeden')).sort((a, b) => a.data.reihenfolge - b.data.reihenfolge);
+const leitfaeden = await getLeitfaeden();
 const glossar = await getGlossarIndex();
 
 // Kennzahlen – automatisch aus dem Datenbestand gezählt

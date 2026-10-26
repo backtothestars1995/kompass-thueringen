@@ -1,0 +1,199 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getLeitfaeden, leitfadenLeer, leitfadenMeta, type Leitfaden } from '../../../lib/leitfaeden';
+import { url } from '../../../lib/url';
+
+export const getStaticPaths = (async () => {
+  const alle = await getLeitfaeden();
+  return alle.map((leitfaden, i) => ({ params: { id: leitfaden.id }, props: { leitfaden, nummer: i + 1, alle } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  leitfaden: Leitfaden;
+  nummer: number;
+  alle: Leitfaden[];
+}
+const { leitfaden: l, nummer, alle } = Astro.props;
+const { Content, headings } = await render(l);
+const kapitel = headings.filter((h) => h.depth === 2);
+const weitere = alle.filter((x) => x.id !== l.id);
+const pdf = l.data.pdf ? url(l.data.pdf.replace(/^\//, '')) : undefined;
+---
+
+<BaseLayout title={l.data.titel} description={`Praxis-Leitfaden des KOMPASS Thüringen: ${l.data.titel}.`}>
+  <article class="container leitfaden">
+    <nav class="breadcrumb" aria-label="Brotkrumen">
+      <ol>
+        <li><a href={url('wissen/')}>← Wissen</a></li>
+        <li><a href={url('wissen/#leitfaeden')}>Praxis-Leitfäden</a></li>
+      </ol>
+    </nav>
+    <header class="leitfaden__kopf">
+      <span class="eyebrow">Leitfaden {String(nummer).padStart(2, '0')}</span>
+      <h1>{l.data.titel}</h1>
+      <p class="leitfaden__meta">{leitfadenMeta(l)}</p>
+      <div class="leitfaden__aktionen">
+        {pdf && (
+          <a class="btn btn--primary" href={pdf} download>
+            PDF herunterladen
+          </a>
+        )}
+        <button type="button" class="btn btn--outline" data-drucken>Drucken</button>
+      </div>
+    </header>
+
+    <div class="leitfaden__layout">
+      {
+        kapitel.length > 0 && (
+          <nav class="leitfaden__toc" aria-labelledby="toc-titel">
+            <p class="eyebrow" id="toc-titel">Inhalt</p>
+            <ol>
+              {kapitel.map((h) => (
+                <li>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      <div class="prose leitfaden__text">
+        {leitfadenLeer(l) ? <p class="placeholder">[Inhalt folgt]</p> : <Content />}
+      </div>
+    </div>
+
+    {
+      weitere.length > 0 && (
+        <aside class="weitere" aria-labelledby="weitere-titel">
+          <h2 id="weitere-titel" class="weitere__titel">Weitere Leitfäden</h2>
+          <ul>
+            {weitere.map((w) => (
+              <li>
+                <a class="link-arrow" href={url(`wissen/leitfaeden/${w.id}/`)}>
+                  {w.data.titel} →
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<script>
+  document.querySelector('[data-drucken]')?.addEventListener('click', () => window.print());
+</script>
+
+<style>
+  .leitfaden {
+    padding-block: var(--space-6) var(--section-gap);
+  }
+  .breadcrumb ol {
+    display: flex;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0 0 var(--space-6);
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+  .breadcrumb li + li::before {
+    content: '/';
+    margin-right: var(--space-2);
+    color: var(--muted);
+  }
+  .breadcrumb a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .leitfaden__kopf {
+    max-width: 52rem;
+    margin-bottom: var(--space-7);
+  }
+  .leitfaden__kopf h1 {
+    font-size: var(--text-3xl);
+  }
+  .leitfaden__meta {
+    color: var(--muted);
+  }
+  .leitfaden__aktionen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  .leitfaden__layout {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+  .leitfaden__toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    align-self: start;
+    font-size: var(--text-sm);
+  }
+  .leitfaden__toc ol {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .leitfaden__toc li + li {
+    margin-top: var(--space-2);
+  }
+  .leitfaden__toc a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .leitfaden__toc a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .leitfaden__layout:not(:has(.leitfaden__toc)) {
+    grid-template-columns: 1fr;
+  }
+  .weitere {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--line);
+  }
+  .weitere__titel {
+    font-size: var(--text-xl);
+  }
+  .weitere ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .weitere li + li {
+    margin-top: var(--space-2);
+  }
+  @media (max-width: 900px) {
+    .leitfaden__layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-5);
+    }
+    .leitfaden__toc {
+      position: static;
+      padding: var(--space-4) var(--space-5);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+    }
+  }
+  @media print {
+    .breadcrumb,
+    .leitfaden__aktionen,
+    .leitfaden__toc,
+    .weitere {
+      display: none;
+    }
+    .leitfaden__layout {
+      display: block;
+    }
+  }
+</style>
