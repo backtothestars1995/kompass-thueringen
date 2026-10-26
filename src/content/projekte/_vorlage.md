@@ -99,8 +99,9 @@ bilder:                                     # erstes Bild = Hauptbild
 #    alt: "Was ist auf dem Bild zu sehen? (Pflicht, für blinde Menschen)"
 #    bildunterschrift: "Optionale Bildunterschrift"
 
-dokumente:                                  # optional, PDFs in public/dokumente/ ablegen
-#  - /dokumente/titel-des-projekts.pdf
+dokumente:                                  # optional, PDFs in public/dokumente/projekte/ ablegen
+#  - titel: "Lesbarer Titel des Dokuments"
+#    pfad: /dokumente/projekte/titel-des-projekts.pdf
 
 projekthomepage: "https://www.beispiel.de"  # optional
 adresse: "Straße Nr., PLZ Ort"              # optional
@@ -109,6 +110,7 @@ koordinaten: [50.9787, 11.0328]             # [Breitengrad, Längengrad] – nö
 #   Tipp: Ort auf openstreetmap.org suchen, Rechtsklick → „Adresse anzeigen“
 
 kontakte:                                   # nur mit Einwilligung der Person veröffentlichen!
+#   Jede Angabe ist optional, mindestens eine muss ausgefüllt sein.
   - name: "Vorname Nachname"
     institution: "Institution"
     email: "name@beispiel.de"

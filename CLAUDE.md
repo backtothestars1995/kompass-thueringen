@@ -119,7 +119,7 @@ Längenbegrenzungen im Schema prüfen (Build bricht mit verständlicher Meldung 
 
 ## Glossar (`src/content/glossar/*.md`)
 
-Felder: `begriff`, `kategorie` (Leerstandstyp · Nutzungsart · Projektzweck · Planung & Recht), Erläuterung als Markdown-Inhalt. Das Glossar ist die **einzige Textquelle** für alle ⓘ-Erläuterungen (Filter, Steckbrief, Formular, Vergleich). Fehlt eine Erläuterung, Platzhalter `[Erläuterung folgt]` anzeigen, nichts erfinden. Grundlage der Leerstandstypen ist das Dokument „Kategorisierung_Typen_Leerstand“ der Redaktion.
+Felder: `begriff`, `kategorie` (Leerstandstyp · Nutzungsart · Projektzweck · Planung & Recht · Projektdaten), Erläuterung als Markdown-Inhalt. Die Kategorie „Projektdaten“ enthält erklärungsbedürftige Feldbegriffe (z. B. Gesamtkosten des Projektes, Personeller Aufwand, Dauer des Leerstands vor Projektstart). Das Glossar ist die **einzige Textquelle** für alle ⓘ-Erläuterungen (Filter, Steckbrief, Formular, Vergleich). Das ⓘ steht neben jedem Begriff, der erläutert werden soll; die Erläuterung erscheint beim Überfahren mit der Maus (zusätzlich per Tastaturfokus und Antippen, Barrierefreiheit). Alle diese Begriffe stehen zusätzlich im Glossar. Fehlt eine Erläuterung, Platzhalter `[Erläuterung folgt]` anzeigen, nichts erfinden. Grundlage der Leerstandstypen ist das Dokument „Kategorisierung_Typen_Leerstand“ der Redaktion.
 
 ## Filter (Entdecken, Startseite, Projekt-Finder)
 
@@ -130,7 +130,9 @@ Projekt-Finder (3 Fragen in Alltagssprache) setzt intern dieselben Filter: Leers
 ## Bestehende Inhalte (Migration)
 
 Diese Projekte stehen aktuell auf kompass-thueringen.de und werden übernommen – Inhalte ausschließlich von der Live-Seite oder von der Redaktion, nicht ergänzen:
-Pößneck – Die Stadt als Projektentwickler · Gotha – Umbau eines Wohnblocks zur Jugendherberge · Jena – StadtLab Jena · Schmalkalden – Ratskeller Schmalkalden · Rudolstadt – RuAnSi · Treffurt – Schwebdaer Hof „Hotel 1601“ · Eisenach – „Goldschmiede Eisenach“ · Bad Salzungen – Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld · Arnstadt – Impulsräume Arnstadt
+Pößneck – Die Stadt als Projektentwickler · Gotha – Umbau eines Wohnblocks zur Jugendherberge · Jena – StadtLab Jena · Schmalkalden – Ratskeller Schmalkalden · Rudolstadt – RuAnSi · Treffurt – Schwebdaer Hof „Hotel 1601“ · Eisenach – „Goldschmiede Eisenach“ · Bad Salzungen – Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld · Arnstadt – Impulsräume Arnstadt · Weimar – Quartiersprojekt Alte Feuerwache · Stadt Amt Creuzburg – Umnutzung ehemaliges Schulgebäude zum Verwaltungssitz
+
+Stand der Übernahme (Oktober 2026): alle 11 Projekte inkl. Bilder übernommen. Kontakte nur mit Institution/Funktionsadresse, ohne Personennamen (Freigabe offen).
 
 Leitfäden (3): Hemmnisse – Chancen und weitere Vorgehensweise bei der Mietförderung · Zwischenerwerb – Voraussetzungen und Bestandteile vom Erwerb bis zur Vermarktung · Zwischenerwerb – Handlungsempfehlung für Kauf, Sicherung, Nachnutzung und Sanierung
 

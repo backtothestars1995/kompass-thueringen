@@ -93,12 +93,16 @@ const projekte = defineCollection({
         ),
         kontakte: liste(
           z.array(
-            z.object({
-              name: pflichtText('kontakte → name'),
-              institution: optional(z.string().trim()),
-              email: optional(z.email({ error: '„kontakte → email“ ist keine gültige E-Mail-Adresse.' })),
-              telefon: optional(z.string().trim()),
-            }),
+            z
+              .object({
+                name: optional(z.string().trim()),
+                institution: optional(z.string().trim()),
+                email: optional(z.email({ error: '„kontakte → email“ ist keine gültige E-Mail-Adresse.' })),
+                telefon: optional(z.string().trim()),
+              })
+              .refine((k) => k.name || k.institution || k.email || k.telefon, {
+                error: '„kontakte“: Ein Eintrag ist leer. Bitte mindestens Name, Institution, E-Mail oder Telefon angeben.',
+              }),
           ),
         ),
         bilder: liste(
@@ -110,7 +114,15 @@ const projekte = defineCollection({
             }),
           ),
         ),
-        dokumente: liste(z.array(z.string().trim().min(1))),
+        // PDF-Pfad (z. B. /dokumente/projekte/datei.pdf) – wahlweise mit lesbarem Titel
+        dokumente: liste(
+          z.array(
+            z.union([
+              z.string().trim().min(1),
+              z.object({ titel: pflichtText('dokumente → titel'), pfad: pflichtText('dokumente → pfad') }),
+            ]),
+          ),
+        ),
         projekthomepage: optional(
           z.url({ error: '„projekthomepage“ muss eine vollständige Adresse sein, z. B. https://www.beispiel.de' }),
         ),

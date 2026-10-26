@@ -82,7 +82,7 @@ export const GESAMTKOSTEN = [
 
 export const PERSONELLER_AUFWAND = ['hoch', 'mittel', 'gering'] as const;
 
-export const GLOSSAR_KATEGORIE = ['Leerstandstyp', 'Nutzungsart', 'Projektzweck', 'Planung & Recht'] as const;
+export const GLOSSAR_KATEGORIE = ['Leerstandstyp', 'Nutzungsart', 'Projektzweck', 'Planung & Recht', 'Projektdaten'] as const;
 
 export type Einwohnerzahl = (typeof EINWOHNERZAHL)[number];
 export type Nutzungsart = (typeof NUTZUNGSART)[number];
