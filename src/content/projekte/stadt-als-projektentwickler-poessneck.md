@@ -53,7 +53,11 @@ hindernisse: |-
   - unattraktives Umfeld der Immobilien
   - allgemein hohe Investitionsunwilligkeit
   - risikobehaftete Bausubstanz (u.a. hoher Sanierungs- und Modernisierungsstau)
-kontakte: []
+kontakte:
+  - name: "Herr Frank Bachmann"
+    institution: "Stadt Pößneck – Fachbereichsleiter Bau und Stadtentwicklung"
+    email: "bauamt@poessneck.de"
+    telefon: "03647 500 253"
 bilder:
   - pfad: ./bilder/stadt-als-projektentwickler-poessneck/01.jpg
     alt: "Die Stadt als Projektentwickler, Pößneck – Bild 1"

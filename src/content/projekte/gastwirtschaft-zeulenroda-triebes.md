@@ -65,7 +65,10 @@ hindernisse: |-
   Verbesserungsidee:
   – Ein durch das Bundesland eingerichteter Finanzierungstopf, in dem zugesagte Fördermittel nach Baufortschritt abgerufen werden können. (ab dem 1. Jahr liegen die zugesagten Fördersummen für den gesamten Bauzeitraum vor; Abruf wie vorher beschrieben nach erfolgreichen Baufortschritten)
   – Stadt unterstützt Projekt mit Städtebauförderung
-kontakte: []
+kontakte:
+  - name: "Bastian Militzer, Thomas Bergner, Toni Heinrich (Vorstand)"
+    institution: "Horlebeck Brauerei Zeulenroda eG, Greizer Straße 17, 07937 Zeulenroda-Triebes"
+    email: "info@horlebeck.de"
 bilder:
   - pfad: ./bilder/gastwirtschaft-zeulenroda-triebes/01.jpg
     alt: "Genossenschaftliches Projekt Zeulenroda-Triebes – Bild 1"

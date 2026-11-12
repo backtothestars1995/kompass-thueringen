@@ -50,7 +50,10 @@ partnerschaften:
   - "Innenstadtakteure"
 hindernisse: |-
   Der Projekterfolg ist abhängig von der Mitwirkung und Kooperation der Eigentümer der leerstehenden Erdgeschosseinheiten, daher ist eine kontinuierliche Eigentümeransprache und ein gewisses Maß an Hartnäckigkeit unabdingbar.
-kontakte: []
+kontakte:
+  - name: "Annika Brill"
+    institution: "Markt 22, 99817 Eisenach"
+    telefon: "03691 670 563"
 bilder:
   - pfad: ./bilder/goldschmiede-eisenach/01.jpg
     alt: "Cafe Seiku"

@@ -39,7 +39,11 @@ partnerschaften:
   - "Baufirmen"
 hindernisse: |-
   Bei der traditionellen Suche nach einem potentiellen Betreiber (regional begrenzt) konnte kein Interessent mit einem Konzept gefunden werden, dass die Eckpunkte der Nutzung erfüllt (Deutsche Küche, Bespielung des Marktes mit einem Biergarten, Öffnungszeiten mindestens 5 Tage/Woche etc.). Erst die Einschaltung eines Gastro-Maklers brachte die Lösung.
-kontakte: []
+kontakte:
+  - name: "Thomas Kaminski"
+    institution: "Bürgermeister"
+    email: "t.kaminski@schmalkalden.de"
+    telefon: "03683-667114"
 bilder:
   - pfad: ./bilder/ratskeller-schmalkalden/01.jpg
     alt: "Ratskeller Schmalkalden – Bild 1"

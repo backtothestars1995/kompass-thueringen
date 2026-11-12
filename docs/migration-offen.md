@@ -8,7 +8,7 @@ Fehlende Felder sind in den Projektdateien leer gelassen. Hier steht, was die Re
 - **Personeller Aufwand (Ampel):** auf der Live-Seite nicht erfasst.
 - **Koordinaten:** auf der Live-Seite nicht erfasst. Vorläufig ist der Stadt- bzw. Ortsmittelpunkt eingetragen (Kommentar „vorläufig“ in der Datei), damit die Projekte auf der Karte erscheinen. Die genaue Lage des Objekts bitte nachtragen.
 - **Adresse:** auf der Live-Seite nicht erfasst.
-- **Kontakte:** vorerst nicht übernommen (Entscheidung der Redaktion); der Steckbrief zeigt einen Platzhalter. Kontakte nur mit Einwilligung der Personen nachtragen.
+- **Kontakte:** wie auf der Live-Seite übernommen (Entscheidung der Redaktion, 12.11.2026). Das Datenmodell kennt nur Name, Institution, E-Mail und Telefon; Anschriften und Webadressen der Live-Seite stehen deshalb im Feld „Institution“.
 - **Alternativtexte:** Die Live-Seite hat als Bildbeschreibung meist nur Projekttitel oder Dateinamen. Die Alternativtexte wurden daraus abgeleitet und sollten redaktionell präzisiert werden (Was ist auf dem Bild zu sehen?).
 - **Leerstandsdauer:** Die alten Werte wurden umgerechnet: „unter 2 Jahre“ → kurzfristig (1–2 Jahre), „2-5 Jahre“ → mittelfristig (3–5 Jahre), „über 5 Jahre“ → langfristig (über 5 Jahre). Von der Redaktion bestätigt.
 - **Zeitraum:** Die neue Seite speichert nur Jahre. Monatsangaben der Live-Seite (z. B. „10/2022 bis 08/2025“) entfallen.
@@ -82,14 +82,12 @@ Datei: `src/content/projekte/gastwirtschaft-zeulenroda-triebes.md` · Quelle: ht
 - Zeitraum auf der Live-Seite: „seit 2024“ – übernommen als 2024 (laufend)
 - Adresse aus den Kontaktangaben der Live-Seite übernommen (Greizer Straße 17)
 - Bildunterschriften: Bildnachweis „Quelle: Horlebeck Brauerei Zeulenroda eG“ von der Live-Seite
-- Projektfahrplan und Partnerschaften nennen Personen namentlich (wie auf der Live-Seite) – bitte prüfen, ob das so veröffentlicht werden soll
 
 ### Nesse-Apfelstädt, OT Neudietendorf – Revitalisierung denkmalgeschützter Hof mit „Cafe 12“
 Datei: `src/content/projekte/cafe-12-neudietendorf.md` · Quelle: https://www.kompass-thueringen.de/project/revitalisierung-denkmalgeschuetzter-hof-mit-cafe-12/
 
 - Zeitraum auf der Live-Seite: „2019-2023“ – übernommen als 2019–2023
 - Adresse aus der Projektbeschreibung bzw. den Kontaktangaben übernommen (Zinzendorfstraße 12)
-- Partnerschaften: nennt eine Person namentlich (wie auf der Live-Seite) – bitte prüfen
 
 ## Weitere Inhalte der Redaktion
 
