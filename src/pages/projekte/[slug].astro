@@ -38,10 +38,28 @@ const beschreibungA = md(bloecke.slice(0, teilung).join('\n\n'));
 const beschreibungB = md(bloecke.slice(teilung).join('\n\n'));
 const zwischenbilder = p.bilder.slice(1, 3);
 
-// Mehrzeilige Felder: Zeilen mit „- “ werden zu Aufzählungen
+// Mehrzeilige Felder: Zeilen mit „- “, „– “ oder „• “ werden zu Aufzählungen
 const zeilen = (text: string) => text.split('\n').map((l) => l.trim()).filter(Boolean);
-const istListe = (text: string) => zeilen(text).every((l) => l.startsWith('- '));
-const ohneStrich = (l: string) => l.replace(/^- /, '');
+const AUFZAEHLUNG = /^[-–•] /;
+const istListe = (text: string) => zeilen(text).every((l) => AUFZAEHLUNG.test(l));
+const ohneStrich = (l: string) => l.replace(AUFZAEHLUNG, '');
+
+// Gemischter Text: Aufzählungen als Liste, eine Zeile direkt davor als Zwischentitel
+type Block = { typ: 'absatz' | 'titel'; text: string } | { typ: 'liste'; punkte: string[] };
+function bloeckeAus(text: string): Block[] {
+  const ls = zeilen(text);
+  const out: Block[] = [];
+  ls.forEach((l, i) => {
+    if (AUFZAEHLUNG.test(l)) {
+      const letzter = out[out.length - 1];
+      if (letzter?.typ === 'liste') letzter.punkte.push(ohneStrich(l));
+      else out.push({ typ: 'liste', punkte: [ohneStrich(l)] });
+    } else {
+      out.push({ typ: AUFZAEHLUNG.test(ls[i + 1] ?? '') ? 'titel' : 'absatz', text: l });
+    }
+  });
+  return out;
+}
 
 const fahrplan = p.projektfahrplan.map((stufe) => {
   const [kopf, ...rest] = zeilen(stufe);
@@ -295,14 +313,20 @@ const dokumentHref = (pfad: string) => url(pfad.replace(/^\//, ''));
               {
                 !p.hindernisse ? (
                   <p class="placeholder">[Hindernisse & wichtige Hinweise]</p>
-                ) : istListe(p.hindernisse) ? (
-                  <ul>
-                    {zeilen(p.hindernisse).map((l) => (
-                      <li>{ohneStrich(l)}</li>
-                    ))}
-                  </ul>
                 ) : (
-                  zeilen(p.hindernisse).map((l) => <p>{l}</p>)
+                  bloeckeAus(p.hindernisse).map((b) =>
+                    b.typ === 'liste' ? (
+                      <ul>
+                        {b.punkte.map((pt) => (
+                          <li>{pt}</li>
+                        ))}
+                      </ul>
+                    ) : b.typ === 'titel' ? (
+                      <p class="hinweisbox__zwischentitel">{b.text}</p>
+                    ) : (
+                      <p>{b.text}</p>
+                    ),
+                  )
                 )
               }
             </div>
@@ -705,6 +729,10 @@ const dokumentHref = (pfad: string) => url(pfad.replace(/^\//, ''));
     gap: var(--space-3);
   }
 
+  .kapitel {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
   .kapitel__abschnitt + .kapitel__abschnitt {
     margin-top: var(--space-8);
   }
@@ -874,8 +902,21 @@ const dokumentHref = (pfad: string) => url(pfad.replace(/^\//, ''));
     max-width: 65ch;
   }
   .hinweisbox ul {
-    margin: 0;
+    margin: 0 0 var(--space-4);
     padding-left: 1.2em;
+  }
+  .hinweisbox ul:last-child {
+    margin-bottom: 0;
+  }
+  .hinweisbox li + li {
+    margin-top: var(--space-1);
+  }
+  .hinweisbox__zwischentitel {
+    margin: var(--space-4) 0 var(--space-2);
+    font-weight: 600;
+  }
+  .hinweisbox__zwischentitel:first-child {
+    margin-top: 0;
   }
   .hinweisbox p:last-child {
     margin-bottom: 0;
@@ -1053,7 +1094,7 @@ const dokumentHref = (pfad: string) => url(pfad.replace(/^\//, ''));
       border-top: 1px solid var(--line);
     }
     .layout {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-6);
     }
     .toc {
