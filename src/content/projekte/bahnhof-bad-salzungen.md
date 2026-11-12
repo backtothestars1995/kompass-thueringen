@@ -42,7 +42,8 @@ partnerschaften:
 hindernisse: |-
   Gemeinsames Ziel Unternehmen, Stadt
   Zusammenarbeit Unternehmen, Stadt, Fördermittelgeber
-kontakte: []
+kontakte:
+  - institution: "GEWOG GmbH Bad Salzungen – Geschäftsführung, Leimbacher Straße 39, 36433 Bad Salzungen"
 bilder:
   - pfad: ./bilder/bahnhof-bad-salzungen/01.jpg
     alt: "Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld"

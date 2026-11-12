@@ -42,7 +42,13 @@ hindernisse: |-
   - Koordinierung zahlreicher Gewerke und Baufirmen
   - Kostenentwicklung in der laufenden Umsetzung
   - Das Gebäude hat als Einzeldenkmal in zentraler Lage im Sanierungsgebiet der Creuzburger Altstadt besondere städtebauliche und denkmalschutzrechtliche Anforderungen an die Umsetzung gestellt, inkl. umfangreicher Abstimmungsprozesse.
-kontakte: []
+kontakte:
+  - name: "Herr Cron"
+    institution: "Stadtverwaltung Stadt Amt Creuzburg"
+    email: "c.cron@vg-hainich-werratal.de"
+  - name: "Herr Spiegler"
+    institution: "ProjektStadt"
+    email: "tobias.spiegler@projektstadt.de"
 bilder:
   - pfad: ./bilder/verwaltungssitz-creuzburg/01.jpg
     alt: "Sanierte Südfassade des Verwaltungssitzes Stadt Amt Creuzburg"

@@ -53,7 +53,15 @@ hindernisse: |-
   - Die Zentralisierung der Kommunikation und Bewerbung unter einem Projektteam, um eine konsistente Darstellung sicherzustellen.
   - Die Investition in umfangreiche Vorarbeiten, einschließlich der Entwicklung eines soliden Konzepts und der Klärung aller organisatorischen und logistischen Aspekte im Voraus.
   - Die Bildung eines interdisziplinären Projektteams mit lokalen Kenntnissen und vielseitigen Fähigkeiten, um Herausforderungen effektiv zu bewältigen und innovative Lösungen zu entwickeln.
-kontakte: []
+kontakte:
+  - name: "Markus Henkenmeier"
+    institution: "Projektleitung"
+    email: "markus.henkenmeier@jena.de"
+    telefon: "03641 8730031"
+  - name: "Grit Sachse"
+    institution: "Projektmanagerin"
+    email: "grit.sachse@jena.de"
+    telefon: "0152 02433602"
 bilder:
   - pfad: ./bilder/stadtlab-jena/01.jpg
     alt: "StadtLab Jena – Experimentier- und Erlebnisraum"

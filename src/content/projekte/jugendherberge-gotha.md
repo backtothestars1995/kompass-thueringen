@@ -46,7 +46,10 @@ partnerschaften:
   - "TLVwA als Fördermittelgeber"
 hindernisse: |-
   Herausforderungen auf der Baustelle (Kabel wurden gestohlen und mussten wieder komplett neu verlegt werden)
-kontakte: []
+kontakte:
+  - name: "Bärbel Ernst"
+    institution: "SB Sanierung Gotha"
+    email: "sanierung@gotha.de"
 bilder:
   - pfad: ./bilder/jugendherberge-gotha/01.jpg
     alt: "Ecke Klosterplatz/Jüdenstraße vor der Sanierung"

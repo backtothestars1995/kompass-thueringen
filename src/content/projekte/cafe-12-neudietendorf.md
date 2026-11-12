@@ -44,7 +44,10 @@ hindernisse: |-
   - Abstimmung mit dem Denkmalamt zur denkmalgerechten Sanierung (enge und frühzeitige Klärung)
   - Fördermittel erfordern Zeit und Nerven: die Regularien beinhalten viel Bürokratie v.a. bei LEADER, man soll sich nicht entmutigen lassen (z.B. bei der Angebotseinholung und der Dokumentation)
   - wichtig ist ein guter Zeitplan: insb. mit den Handwerkern, damit die Gewerke ineinander greifen, auch die Ausschreibungen für die Handwerker müssen präzise sein und der zeitliche Vorlauf ist zu beachten.
-kontakte: []
+kontakte:
+  - institution: "Café 12, Zinzendorfstraße 12, 99192 Neudietendorf"
+  - name: "Martin Günther"
+    email: "Martin.Guenther@projektstadt.de"
 bilder:
   - pfad: ./bilder/cafe-12-neudietendorf/01.jpg
     alt: "Zinzendorfstraße 12 im Jahr 2010"

@@ -49,7 +49,8 @@ hindernisse: |-
   Spagat zwischen detaillierter Informationsgewinnung und prägnantem Erhebungsbogen.
   Langer Atem in der Startphase, bis Ansiedlungsmanagement etabliert ist.
   Netzwerke unbedingt einbeziehen.
-kontakte: []
+kontakte:
+  - institution: "Stadtentwicklungsgesellschaft Rudolstadt mbH – Bereich Citymanagement / RuAnSi, Neumarkt 1, 07407 Rudolstadt, www.ser.rudolstadt.de"
 bilder:
   - pfad: ./bilder/ruansi-rudolstadt/01.png
     alt: "RuAnSi – Bildschirmfoto 1"
