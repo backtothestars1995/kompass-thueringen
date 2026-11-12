@@ -130,9 +130,9 @@ Projekt-Finder (3 Fragen in Alltagssprache) setzt intern dieselben Filter: Leers
 ## Bestehende Inhalte (Migration)
 
 Diese Projekte stehen aktuell auf kompass-thueringen.de und werden übernommen – Inhalte ausschließlich von der Live-Seite oder von der Redaktion, nicht ergänzen:
-Pößneck – Die Stadt als Projektentwickler · Gotha – Umbau eines Wohnblocks zur Jugendherberge · Jena – StadtLab Jena · Schmalkalden – Ratskeller Schmalkalden · Rudolstadt – RuAnSi · Treffurt – Schwebdaer Hof „Hotel 1601“ · Eisenach – „Goldschmiede Eisenach“ · Bad Salzungen – Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld · Arnstadt – Impulsräume Arnstadt · Weimar – Quartiersprojekt Alte Feuerwache · Stadt Amt Creuzburg – Umnutzung ehemaliges Schulgebäude zum Verwaltungssitz
+Pößneck – Die Stadt als Projektentwickler · Gotha – Umbau eines Wohnblocks zur Jugendherberge · Jena – StadtLab Jena · Schmalkalden – Ratskeller Schmalkalden · Rudolstadt – RuAnSi · Treffurt – Schwebdaer Hof „Hotel 1601“ · Eisenach – „Goldschmiede Eisenach“ · Bad Salzungen – Revitalisierung Bahnhofsgebäude und Bahnhofsumfeld · Arnstadt – Impulsräume Arnstadt · Weimar – Quartiersprojekt Alte Feuerwache · Stadt Amt Creuzburg – Umnutzung ehemaliges Schulgebäude zum Verwaltungssitz · Zeulenroda-Triebes – Genossenschaftliches Projekt zur Wiederbelebung einer Gastwirtschaft · Nesse-Apfelstädt (OT Neudietendorf) – Revitalisierung denkmalgeschützter Hof mit „Cafe 12“
 
-Stand der Übernahme (Oktober 2026): alle 11 Projekte inkl. Bilder übernommen. Kontakte vorerst nicht übernommen (Platzhalter). Koordinaten vorläufig = Stadtmittelpunkt.
+Stand der Übernahme (November 2026): alle 13 Projekte inkl. Bilder übernommen. Kontakte vorerst nicht übernommen (Platzhalter). Koordinaten vorläufig = Stadtmittelpunkt.
 
 Leitfäden (3): Hemmnisse – Chancen und weitere Vorgehensweise bei der Mietförderung · Zwischenerwerb – Voraussetzungen und Bestandteile vom Erwerb bis zur Vermarktung · Zwischenerwerb – Handlungsempfehlung für Kauf, Sicherung, Nachnutzung und Sanierung
 

@@ -1,12 +1,12 @@
 # Migration – offene Punkte
 
-Übernommen am 26.10.2026 von www.kompass-thueringen.de (alle 11 Projekte, Texte und Bilder).
+Übernommen am 26.10.2026 von www.kompass-thueringen.de (11 Projekte, Texte und Bilder); am 12.11.2026 zwei neu veröffentlichte Projekte ergänzt (Zeulenroda-Triebes, Neudietendorf).
 Fehlende Felder sind in den Projektdateien leer gelassen. Hier steht, was die Redaktion noch ergänzen oder prüfen sollte.
 
 ## Gilt für alle Projekte
 
 - **Personeller Aufwand (Ampel):** auf der Live-Seite nicht erfasst.
-- **Koordinaten:** auf der Live-Seite nicht erfasst. Vorläufig ist der Stadtmittelpunkt eingetragen (Kommentar „vorläufig“ in der Datei), damit die Projekte auf der Karte erscheinen. Die genaue Lage des Objekts bitte nachtragen.
+- **Koordinaten:** auf der Live-Seite nicht erfasst. Vorläufig ist der Stadt- bzw. Ortsmittelpunkt eingetragen (Kommentar „vorläufig“ in der Datei), damit die Projekte auf der Karte erscheinen. Die genaue Lage des Objekts bitte nachtragen.
 - **Adresse:** auf der Live-Seite nicht erfasst.
 - **Kontakte:** vorerst nicht übernommen (Entscheidung der Redaktion); der Steckbrief zeigt einen Platzhalter. Kontakte nur mit Einwilligung der Personen nachtragen.
 - **Alternativtexte:** Die Live-Seite hat als Bildbeschreibung meist nur Projekttitel oder Dateinamen. Die Alternativtexte wurden daraus abgeleitet und sollten redaktionell präzisiert werden (Was ist auf dem Bild zu sehen?).
@@ -75,6 +75,21 @@ Datei: `src/content/projekte/jugendherberge-gotha.md` · Quelle: https://www.kom
 Datei: `src/content/projekte/verwaltungssitz-creuzburg.md` · Quelle: https://www.kompass-thueringen.de/project/umnutzung-ehemaliges-schulgebaeude-zum-verwaltungssitz-stadt-amt-creuzburg/
 
 - keine weiteren Punkte
+
+### Zeulenroda-Triebes – Genossenschaftliches Projekt zur Wiederbelebung einer Gastwirtschaft
+Datei: `src/content/projekte/gastwirtschaft-zeulenroda-triebes.md` · Quelle: https://www.kompass-thueringen.de/project/genossenschaftliches-projekt-zur-wiederbelebung-einer-gastwirtschaft/
+
+- Zeitraum auf der Live-Seite: „seit 2024“ – übernommen als 2024 (laufend)
+- Adresse aus den Kontaktangaben der Live-Seite übernommen (Greizer Straße 17)
+- Bildunterschriften: Bildnachweis „Quelle: Horlebeck Brauerei Zeulenroda eG“ von der Live-Seite
+- Projektfahrplan und Partnerschaften nennen Personen namentlich (wie auf der Live-Seite) – bitte prüfen, ob das so veröffentlicht werden soll
+
+### Nesse-Apfelstädt, OT Neudietendorf – Revitalisierung denkmalgeschützter Hof mit „Cafe 12“
+Datei: `src/content/projekte/cafe-12-neudietendorf.md` · Quelle: https://www.kompass-thueringen.de/project/revitalisierung-denkmalgeschuetzter-hof-mit-cafe-12/
+
+- Zeitraum auf der Live-Seite: „2019-2023“ – übernommen als 2019–2023
+- Adresse aus der Projektbeschreibung bzw. den Kontaktangaben übernommen (Zinzendorfstraße 12)
+- Partnerschaften: nennt eine Person namentlich (wie auf der Live-Seite) – bitte prüfen
 
 ## Weitere Inhalte der Redaktion
 
